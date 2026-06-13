@@ -577,7 +577,21 @@ async function gerarCap(num) {
     estado[num].refs = refs;
     estado[num].status = 'feito';
     atualizarSidebarItem(num);
-    if (capAtivo === num) renderEditor(num);
+    if (capAtivo === num) {
+      const box = document.getElementById('conteudoBox');
+      if (box) { box.innerHTML = formatarTexto(textoLimpo, refs); box.className = 'conteudo-gerado'; }
+      const btnGerar = document.getElementById('btnGerar');
+      if (btnGerar) btnGerar.textContent = '↺ Regenerar capítulo';
+      const acoes = document.querySelector('.acoes');
+      if (acoes && !document.getElementById('btnDownload')) {
+        const btnDl = document.createElement('button');
+        btnDl.className = 'btn btn-download';
+        btnDl.id = 'btnDownload';
+        btnDl.textContent = '⬇ Baixar .docx';
+        btnDl.onclick = () => baixarDocx(num);
+        acoes.appendChild(btnDl);
+      }
+    }
     setStatus(`Capítulo ${num} gerado com sucesso`, 'ok');
 
   } catch (e) {
