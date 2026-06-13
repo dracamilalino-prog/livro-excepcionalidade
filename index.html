@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excepcionalidades Femininas — Plataforma Editorial</title>
+<style>
+  :root {
+    --roxo: #3d1a6e;
+    --roxo-medio: #5c2d91;
+    --roxo-claro: #8a5bbf;
+    --dourado: #c9a84c;
+    --dourado-claro: #e8c96e;
+    --bg: #0f0718;
+    --bg2: #1a0d2e;
+    --bg3: #241040;
+    --texto: #f0e8ff;
+    --texto2: #c8b8e8;
+    --borda: #3d2060;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--texto); font-family: 'Georgia', serif; min-height: 100vh; }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--bg2), var(--roxo));
+    border-bottom: 2px solid var(--dourado);
+    padding: 20px 24px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .header-logo {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--dourado), var(--dourado-claro));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: bold; color: var(--bg); flex-shrink: 0;
+  }
+  .header-info h1 { font-size: 1.1rem; color: var(--dourado); letter-spacing: 1px; }
+  .header-info p { font-size: 0.78rem; color: var(--texto2); margin-top: 2px; }
+  .header-crm { margin-left: auto; font-size: 0.72rem; color: var(--dourado-claro); opacity: 0.8; text-align: right; }
+
+  /* LAYOUT */
+  .container { display: flex; height: calc(100vh - 90px); }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 280px; flex-shrink: 0;
+    background: var(--bg2);
+    border-right: 1px solid var(--borda);
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-top { padding: 16px; border-bottom: 1px solid var(--borda); }
+  .btn-gerar-tudo {
+    width: 100%; padding: 12px;
+    background: linear-gradient(135deg, var(--dourado), var(--dourado-claro));
+    color: var(--bg); border: none; border-radius: 8px;
+    font-size: 0.85rem; font-weight: bold; cursor: pointer;
+    letter-spacing: 0.5px; transition: opacity 0.2s;
+  }
+  .btn-gerar-tudo:hover { opacity: 0.9; }
+  .btn-gerar-tudo.parar { background: linear-gradient(135deg, #c0392b, #e74c3c); color: white; }
+
+  .parte-label {
+    padding: 10px 16px 4px;
+    font-size: 0.62rem; font-weight: bold; letter-spacing: 1.5px;
+    color: var(--dourado); text-transform: uppercase; opacity: 0.8;
+  }
+  .cap-item {
+    padding: 9px 16px; cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+    font-size: 0.8rem; color: var(--texto2);
+  }
+  .cap-item:hover { background: var(--bg3); color: var(--texto); }
+  .cap-item.ativo { border-left-color: var(--dourado); background: var(--bg3); color: var(--dourado); }
+  .cap-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--bg3); border: 1px solid var(--borda);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; flex-shrink: 0; font-family: monospace;
+  }
+  .cap-item.ativo .cap-num { background: var(--dourado); color: var(--bg); border-color: var(--dourado); }
+  .cap-item.feito .cap-num { background: #1a5c2a; border-color: #2ecc71; color: #2ecc71; }
+  .cap-item.gerando .cap-num { background: var(--roxo); border-color: var(--roxo-claro); }
+  .cap-titulo { flex: 1; line-height: 1.3; }
+
+  /* MAIN */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* EDITOR AREA */
+  .editor-area { flex: 1; overflow-y: auto; padding: 28px 32px; }
+
+  .cap-header { margin-bottom: 20px; }
+  .cap-header .parte { font-size: 0.7rem; color: var(--dourado); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .cap-header h2 { font-size: 1.6rem; color: var(--texto); font-weight: normal; line-height: 1.3; }
+  .cap-header .subtopicos { font-size: 0.78rem; color: var(--texto2); margin-top: 6px; font-style: italic; }
+
+  .notas-area {
+    background: var(--bg2); border: 1px solid var(--borda);
+    border-radius: 8px; padding: 14px; margin-bottom: 20px;
+  }
+  .notas-area label { font-size: 0.75rem; color: var(--dourado); letter-spacing: 1px; display: block; margin-bottom: 8px; }
+  .notas-area textarea {
+    width: 100%; background: var(--bg3); border: 1px solid var(--borda);
+    color: var(--texto); font-size: 0.82rem; padding: 10px; border-radius: 6px;
+    resize: vertical; min-height: 70px; font-family: inherit; line-height: 1.5;
+  }
+  .notas-area textarea:focus { outline: none; border-color: var(--roxo-claro); }
+
+  .acoes { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+  .btn {
+    padding: 10px 20px; border-radius: 7px; border: none; cursor: pointer;
+    font-size: 0.82rem; font-weight: bold; transition: all 0.15s; letter-spacing: 0.3px;
+  }
+  .btn-primario { background: var(--roxo-medio); color: white; }
+  .btn-primario:hover { background: var(--roxo-claro); }
+  .btn-secundario { background: transparent; color: var(--dourado); border: 1px solid var(--dourado); }
+  .btn-secundario:hover { background: rgba(201,168,76,0.1); }
+  .btn-download { background: linear-gradient(135deg, #1a5c2a, #27ae60); color: white; }
+  .btn-download:hover { opacity: 0.9; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* CONTEÚDO GERADO */
+  .conteudo-gerado {
+    background: var(--bg2); border: 1px solid var(--borda);
+    border-radius: 10px; padding: 28px 32px;
+    line-height: 1.85; font-size: 0.9rem;
+    min-height: 200px; position: relative;
+  }
+  .conteudo-gerado.vazio {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--texto2); font-style: italic; min-height: 300px; text-align: center;
+  }
+  .conteudo-gerado p { margin-bottom: 14px; }
+  .conteudo-gerado strong { color: var(--dourado-claro); }
+  .conteudo-gerado em { color: var(--texto2); }
+  .conteudo-gerado h3 { color: var(--dourado); margin: 24px 0 12px; font-size: 1rem; letter-spacing: 1px; text-transform: uppercase; font-size: 0.85rem; }
+  .conteudo-gerado h4 { color: var(--roxo-claro); margin: 18px 0 10px; font-size: 0.9rem; }
+  .conteudo-gerado .refs { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--borda); }
+  .conteudo-gerado .refs h3 { color: var(--dourado); }
+  .conteudo-gerado .refs ol { padding-left: 20px; }
+  .conteudo-gerado .refs li { margin-bottom: 8px; font-size: 0.78rem; color: var(--texto2); line-height: 1.6; }
+  .cursor-blink::after { content: '▋'; animation: blink 0.7s infinite; color: var(--dourado); }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* STATUS */
+  .status-bar {
+    padding: 8px 32px; background: var(--bg2);
+    border-top: 1px solid var(--borda);
+    font-size: 0.72rem; color: var(--texto2);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--borda); }
+  .status-dot.ativo { background: var(--dourado); animation: pulse 1.5s infinite; }
+  .status-dot.ok { background: #2ecc71; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* PROGRESSO */
+  .progresso { padding: 0 16px 12px; }
+  .progresso-bar { height: 3px; background: var(--borda); border-radius: 2px; overflow: hidden; }
+  .progresso-fill { height: 100%; background: var(--dourado); transition: width 0.5s; border-radius: 2px; }
+  .progresso-texto { font-size: 0.65rem; color: var(--texto2); margin-top: 4px; text-align: center; }
+
+  /* WELCOME */
+  .welcome { text-align: center; padding: 60px 32px; }
+  .welcome h2 { color: var(--dourado); font-size: 1.4rem; margin-bottom: 12px; }
+  .welcome p { color: var(--texto2); font-size: 0.85rem; line-height: 1.7; max-width: 480px; margin: 0 auto; }
+
+  ::-webkit-scrollbar { width: 5px; } 
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--borda); border-radius: 3px; }
+
+  /* MODAL API KEY */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; backdrop-filter: blur(4px);
+  }
+  .modal-overlay.hidden { display: none; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--dourado);
+    border-radius: 14px; padding: 36px 40px; max-width: 480px; width: 90%;
+    box-shadow: 0 0 60px rgba(201,168,76,0.15);
+  }
+  .modal h2 { color: var(--dourado); font-size: 1.2rem; margin-bottom: 8px; }
+  .modal p { color: var(--texto2); font-size: 0.82rem; line-height: 1.7; margin-bottom: 20px; }
+  .modal input {
+    width: 100%; padding: 12px 14px;
+    background: var(--bg3); border: 1px solid var(--borda);
+    color: var(--texto); font-size: 0.85rem; border-radius: 8px;
+    font-family: monospace; margin-bottom: 8px;
+  }
+  .modal input:focus { outline: none; border-color: var(--dourado); }
+  .modal-hint { font-size: 0.72rem; color: var(--texto2); margin-bottom: 20px; opacity: 0.7; }
+  .modal-hint a { color: var(--dourado); text-decoration: none; }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions .btn { flex: 1; padding: 12px; font-size: 0.85rem; }
+  .api-badge {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px; background: var(--bg3);
+    border: 1px solid var(--borda); border-radius: 20px;
+    font-size: 0.7rem; color: var(--texto2); cursor: pointer;
+    transition: all 0.2s; margin-left: auto;
+  }
+  .api-badge:hover { border-color: var(--dourado); color: var(--dourado); }
+  .api-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #e74c3c; }
+  .api-badge .dot.ok { background: #2ecc71; }
+</style>
+</head>
+<body>
+
+<!-- MODAL API KEY -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>✦ Configurar API Key</h2>
+    <p>Para usar a plataforma fora do Claude.ai (Opera, Chrome, qualquer navegador), você precisa de uma API Key da Anthropic. Ela fica salva apenas no seu navegador.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off" />
+    <div class="modal-hint">
+      Obtenha sua key em <a href="https://console.anthropic.com/keys" target="_blank">console.anthropic.com/keys</a>
+      <br>A key é salva localmente no seu navegador (localStorage) e nunca enviada a terceiros.
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secundario" onclick="fecharModal()">Cancelar</button>
+      <button class="btn btn-primario" onclick="salvarApiKey()">✦ Salvar e continuar</button>
+    </div>
+  </div>
+</div>
+
+<div class="header">
+  <div class="header-logo">CL</div>
+  <div class="header-info">
+    <h1>EXCEPCIONALIDADES FEMININAS</h1>
+    <p>Plataforma Editorial · TDAH · Autismo · Altas Habilidades</p>
+  </div>
+  <div class="header-crm">Dra. Camila Lino<br>CRM 274280 SP</div>
+  <div class="api-badge" id="apiBadge" onclick="abrirModal()" title="Clique para configurar API Key">
+    <div class="dot" id="apiDot"></div>
+    <span id="apiLabel">API Key</span>
+  </div>
+</div>
+
+<div class="container">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <button class="btn-gerar-tudo" id="btnGerarTudo" onclick="toggleGerarTudo()">
+        ✦ Gerar todos os capítulos
+      </button>
+      <div class="progresso" id="progressoArea" style="display:none; margin-top:12px;">
+        <div class="progresso-bar"><div class="progresso-fill" id="progressoFill" style="width:0%"></div></div>
+        <div class="progresso-texto" id="progressoTexto">0 / 27 capítulos</div>
+      </div>
+    </div>
+    <div id="sidebarLista"></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="editor-area" id="editorArea">
+      <div class="welcome">
+        <h2>✦ Sua plataforma editorial está pronta</h2>
+        <p>Selecione um capítulo na barra lateral para gerar o conteúdo individualmente, ou clique em <strong>"Gerar todos os capítulos"</strong> para produzir o livro completo de forma automática.</p>
+        <br>
+        <p style="font-size:0.75rem; color: var(--dourado); opacity:0.7;">Cada capítulo inclui texto editorial completo no seu estilo, notas de rodapé numeradas e referências bibliográficas em formato editorial publicável.</p>
+      </div>
+    </div>
+    <div class="status-bar">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusTexto">Pronta para gerar</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const ESTRUTURA = [
+  { parte: "PARTE I — O Invisível que Dói", capitulos: [
+    { num: 1, titulo: "A mulher que aprendeu a desaparecer", subtopicos: "Mascaramento; Performance; Exaustão invisível" },
+    { num: 2, titulo: "Quando o diagnóstico chega tarde demais", subtopicos: "Diagnóstico tardio em mulheres; Impacto emocional; Reescrita da história" },
+    { num: 3, titulo: "O peso de parecer normal", subtopicos: "Comparação social; Autocobrança; O mito da mulher que dá conta de tudo" }
+  ]},
+  { parte: "PARTE II — Entendendo o TDAH Feminino", capitulos: [
+    { num: 4, titulo: "TDAH: a versão que ninguém te contou", subtopicos: "Histórico do diagnóstico; Viés de gênero; Subtipos" },
+    { num: 5, titulo: "Dentro da mente que acelera", subtopicos: "Funções executivas; Memória de trabalho; Regulação emocional" },
+    { num: 6, titulo: "O corpo que não para — ou que não consegue começar", subtopicos: "Hiperatividade interna; Paralisia por análise; Procrastinação" },
+    { num: 7, titulo: "TDAH e relacionamentos: o caos que ninguém vê", subtopicos: "Vínculos; Hiperfoco afetivo; Conflito e ruptura" },
+    { num: 8, titulo: "TDAH na escola, no trabalho, na vida adulta", subtopicos: "Desempenho acadêmico; Carreira; Autoestima profissional" }
+  ]},
+  { parte: "PARTE III — Autismo Feminino: a Máscara mais Elaborada", capitulos: [
+    { num: 9,  titulo: "Autismo não tem cara de menino", subtopicos: "Fenótipo feminino; Mascaramento social; Diagnóstico perdido" },
+    { num: 10, titulo: "Interações sociais: o esforço que drena", subtopicos: "Cognição social; Scripts; Esgotamento pós-social" },
+    { num: 11, titulo: "Sensorialidade: o mundo em volume máximo", subtopicos: "Processamento sensorial; Hiper e hipossensibilidade; Ambiente" },
+    { num: 12, titulo: "Interesses intensos como linguagem de amor", subtopicos: "Interesses restritos; Identidade; Superpoderes disfarçados" },
+    { num: 13, titulo: "Autismo e saúde mental: a comorbidade esquecida", subtopicos: "Ansiedade; Depressão; Burnout autístico" }
+  ]},
+  { parte: "PARTE IV — Altas Habilidades: o Dom que Pesa", capitulos: [
+    { num: 14, titulo: "Ser muito não é o mesmo que ser bem", subtopicos: "Superdotação; Definições; Mitos" },
+    { num: 15, titulo: "A intensidade que assusta", subtopicos: "Superexcitabilidades de Dabrowski; Emoções amplificadas; Empatia intensa" },
+    { num: 16, titulo: "Altas habilidades em mulheres: duplamente invisível", subtopicos: "Subidentificação feminina; Perfeccionismo; Síndrome de impostura" }
+  ]},
+  { parte: "PARTE V — Quando Tudo se Mistura", capitulos: [
+    { num: 17, titulo: "Dupla excepcionalidade: brilho e sombra", subtopicos: "TDAH + altas habilidades; Autismo + altas habilidades; Complexidade diagnóstica" },
+    { num: 18, titulo: "A tríade que ninguém nomeia", subtopicos: "TDAH + autismo + altas habilidades; Perfil clínico; Abordagem integrativa" }
+  ]},
+  { parte: "PARTE VI — O Corpo que Carrega Tudo", capitulos: [
+    { num: 19, titulo: "Hormônios, ciclos e neurodivergência", subtopicos: "Ciclo menstrual e sintomas; Gestação; Menopausa" },
+    { num: 20, titulo: "O sono que não restaura", subtopicos: "Insônia; Hipersonia; Ritmo circadiano" },
+    { num: 21, titulo: "Alimentação, corpo e controle", subtopicos: "Comer emocional; Restrição; ARFID; Imagem corporal" }
+  ]},
+  { parte: "PARTE VII — Reconhecimento e Recomeço", capitulos: [
+    { num: 22, titulo: "O diagnóstico como libertação", subtopicos: "Processo diagnóstico; Reação ao diagnóstico; Luto e alívio" },
+    { num: 23, titulo: "Aprender a se conhecer de novo", subtopicos: "Identidade neurodivergente; Aprender limites; Autocompaixão sem infantilização" },
+    { num: 24, titulo: "Você nunca foi 'demais'", subtopicos: "A mulher inteira; Intensidade como potência; A liberdade de existir" }
+  ]},
+  { parte: "PARTE VIII — Caminho de Cuidado", capitulos: [
+    { num: 25, titulo: "O tratamento além dos estereótipos", subtopicos: "Psicoterapia; Rotina; Sono; Organização ambiental; Rede de apoio" },
+    { num: 26, titulo: "Medicação sem tabu", subtopicos: "Quando pode ajudar; Mitos; Individualidade terapêutica; O cuidado ético e humano" },
+    { num: 27, titulo: "Construindo uma vida sustentável", subtopicos: "Respeitar limites; Funcionalidade real; Qualidade de vida; A mulher por trás da performance" }
+  ]}
+];
+
+// Estado global
+const estado = {};
+ESTRUTURA.forEach(p => p.capitulos.forEach(c => {
+  estado[c.num] = { status: 'pendente', texto: '', refs: [], notas: '', parteLabel: p.parte };
+}));
+
+let capAtivo = null;
+let gerandoTudo = false;
+let pararGeracao = false;
+
+// ===== API KEY =====
+let API_KEY = '';
+
+function initApiKey() {
+  const saved = localStorage.getItem('cl_api_key');
+  if (saved) {
+    API_KEY = saved;
+    atualizarBadge(true);
+  } else {
+    // Verifica se está rodando no claude.ai (não precisa de key)
+    const noClaudeAi = window.location.hostname.includes('claude.ai') || window.location.hostname === '';
+    if (!noClaudeAi) {
+      abrirModal();
+    } else {
+      atualizarBadge(false, 'claude.ai');
+    }
+  }
+}
+
+function abrirModal() {
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  const saved = localStorage.getItem('cl_api_key');
+  if (saved) document.getElementById('apiKeyInput').value = saved;
+  setTimeout(() => document.getElementById('apiKeyInput').focus(), 100);
+}
+
+function fecharModal() {
+  document.getElementById('modalOverlay').classList.add('hidden');
+}
+
+function salvarApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val || !val.startsWith('sk-ant-')) {
+    document.getElementById('apiKeyInput').style.borderColor = '#e74c3c';
+    document.getElementById('apiKeyInput').placeholder = 'Key inválida — deve começar com sk-ant-...';
+    return;
+  }
+  API_KEY = val;
+  localStorage.setItem('cl_api_key', val);
+  atualizarBadge(true);
+  fecharModal();
+}
+
+function atualizarBadge(ok, label) {
+  const dot = document.getElementById('apiDot');
+  const lbl = document.getElementById('apiLabel');
+  if (ok) {
+    dot.className = 'dot ok';
+    lbl.textContent = 'API ativa';
+  } else if (label === 'claude.ai') {
+    dot.className = 'dot ok';
+    lbl.textContent = 'claude.ai';
+  } else {
+    dot.className = 'dot';
+    lbl.textContent = 'Configurar API';
+  }
+}
+
+function getHeaders() {
+  // Se tem API key local, usa ela. Se não, tenta sem (claude.ai injeta automaticamente)
+  const headers = { 'Content-Type': 'application/json' };
+  if (API_KEY) headers['x-api-key'] = API_KEY;
+  if (API_KEY) headers['anthropic-version'] = '2023-06-01';
+  // CORS proxy para uso local — necessário quando abrindo como arquivo local
+  return headers;
+}
+
+function getApiUrl() {
+  // No claude.ai, usa a URL relativa/proxy. Localmente, usa diretamente.
+  if (window.location.hostname.includes('claude.ai') || !API_KEY) {
+    return 'https://api.anthropic.com/v1/messages';
+  }
+  return 'https://api.anthropic.com/v1/messages';
+}
+
+// ===== SIDEBAR =====
+function buildSidebar() {
+  const lista = document.getElementById('sidebarLista');
+  lista.innerHTML = '';
+  ESTRUTURA.forEach(parte => {
+    const label = document.createElement('div');
+    label.className = 'parte-label';
+    label.textContent = parte.parte.split('—')[0].trim();
+    lista.appendChild(label);
+    parte.capitulos.forEach(cap => {
+      const item = document.createElement('div');
+      item.className = 'cap-item' + (capAtivo === cap.num ? ' ativo' : '') + (estado[cap.num].status === 'feito' ? ' feito' : '') + (estado[cap.num].status === 'gerando' ? ' gerando' : '');
+      item.id = `sidebar-${cap.num}`;
+      item.onclick = () => abrirCap(cap.num);
+      item.innerHTML = `<div class="cap-num">${cap.num}</div><div class="cap-titulo">${cap.titulo}</div>`;
+      lista.appendChild(item);
+    });
+  });
+}
+
+function atualizarSidebarItem(num) {
+  const item = document.getElementById(`sidebar-${num}`);
+  if (!item) return;
+  item.className = 'cap-item' + (capAtivo === num ? ' ativo' : '') + (estado[num].status === 'feito' ? ' feito' : '') + (estado[num].status === 'gerando' ? ' gerando' : '');
+}
+
+// ===== ABRIR CAPÍTULO =====
+function abrirCap(num) {
+  capAtivo = num;
+  buildSidebar();
+  renderEditor(num);
+  // scroll sidebar
+  const el = document.getElementById(`sidebar-${num}`);
+  if (el) el.scrollIntoView({ block: 'nearest' });
+}
+
+function encontrarCap(num) {
+  for (const p of ESTRUTURA) {
+    const c = p.capitulos.find(x => x.num === num);
+    if (c) return { ...c, parte: p.parte };
+  }
+  return null;
+}
+
+function renderEditor(num) {
+  const cap = encontrarCap(num);
+  const st = estado[num];
+  const area = document.getElementById('editorArea');
+
+  const conteudoHTML = st.texto
+    ? `<div class="conteudo-gerado${st.status === 'gerando' ? ' cursor-blink' : ''}" id="conteudoBox">${formatarTexto(st.texto, st.refs)}</div>`
+    : `<div class="conteudo-gerado vazio" id="conteudoBox">${st.status === 'gerando' ? '<span class="cursor-blink">Gerando capítulo...</span>' : 'Clique em "Gerar capítulo" para começar.'}</div>`;
+
+  area.innerHTML = `
+    <div class="cap-header">
+      <div class="parte">${cap.parte}</div>
+      <h2>Capítulo ${cap.num} — ${cap.titulo}</h2>
+      <div class="subtopicos">Subtópicos: ${cap.subtopicos}</div>
+    </div>
+    <div class="notas-area">
+      <label>✦ NOTAS OPCIONAIS (casos clínicos, direcionamentos, pontos que quer incluir)</label>
+      <textarea id="notasInput" placeholder="Ex: incluir caso de paciente que demorou 15 anos para ser diagnosticada; enfatizar culpa materna no TDAH...">${st.notas}</textarea>
+    </div>
+    <div class="acoes">
+      <button class="btn btn-primario" id="btnGerar" onclick="gerarCap(${num})" ${st.status === 'gerando' ? 'disabled' : ''}>
+        ${st.status === 'feito' ? '↺ Regenerar capítulo' : '✦ Gerar capítulo'}
+      </button>
+      ${st.status === 'feito' ? `<button class="btn btn-download" onclick="baixarDocx(${num})">⬇ Baixar .docx</button>` : ''}
+    </div>
+    ${conteudoHTML}
+  `;
+}
+
+// ===== FORMATAR TEXTO =====
+function formatarTexto(texto, refs) {
+  let html = texto
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/### (.*?)(\n|$)/g, '<h3>$1</h3>')
+    .replace(/## (.*?)(\n|$)/g, '<h3>$1</h3>')
+    .replace(/\[(\d+)\]/g, '<sup style="color:var(--dourado);font-size:0.65em">[$1]</sup>');
+
+  const paragrafos = html.split(/\n\n+/).filter(p => p.trim());
+  html = paragrafos.map(p => {
+    p = p.trim();
+    if (p.startsWith('<h')) return p;
+    return `<p>${p.replace(/\n/g, '<br>')}</p>`;
+  }).join('');
+
+  if (refs && refs.length > 0) {
+    html += `<div class="refs"><h3>Referências</h3><ol>${refs.map(r => `<li>${r}</li>`).join('')}</ol></div>`;
+  }
+
+  return html;
+}
+
+// ===== STATUS =====
+function setStatus(msg, tipo) {
+  document.getElementById('statusTexto').textContent = msg;
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot' + (tipo === 'gerando' ? ' ativo' : tipo === 'ok' ? ' ok' : '');
+}
+
+// ===== GERAR CAPÍTULO =====
+async function gerarCap(num) {
+  const notas = document.getElementById('notasInput')?.value || '';
+  estado[num].notas = notas;
+  estado[num].status = 'gerando';
+  estado[num].texto = '';
+  estado[num].refs = [];
+  atualizarSidebarItem(num);
+  renderEditor(num);
+  setStatus(`Gerando Capítulo ${num}...`, 'gerando');
+
+  const cap = encontrarCap(num);
+
+  const prompt = buildPrompt(cap, notas);
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(API_KEY ? { 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' } : {})
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        stream: true,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let textoAcumulado = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const linhas = buffer.split('\n');
+      buffer = linhas.pop();
+
+      for (const linha of linhas) {
+        if (!linha.startsWith('data: ')) continue;
+        const data = linha.slice(6);
+        if (data === '[DONE]') continue;
+        try {
+          const obj = JSON.parse(data);
+          if (obj.type === 'content_block_delta' && obj.delta?.text) {
+            textoAcumulado += obj.delta.text;
+            estado[num].texto = textoAcumulado;
+            // update live
+            const box = document.getElementById('conteudoBox');
+            if (box) {
+              box.innerHTML = formatarTexto(textoAcumulado, []);
+              box.className = 'conteudo-gerado cursor-blink';
+            }
+          }
+        } catch {}
+      }
+    }
+
+    // Extrair referências do texto
+    const { textoLimpo, refs } = extrairRefs(textoAcumulado);
+    estado[num].texto = textoLimpo;
+    estado[num].refs = refs;
+    estado[num].status = 'feito';
+    atualizarSidebarItem(num);
+    if (capAtivo === num) renderEditor(num);
+    setStatus(`Capítulo ${num} gerado com sucesso`, 'ok');
+
+  } catch (e) {
+    estado[num].status = 'pendente';
+    estado[num].texto = '';
+    atualizarSidebarItem(num);
+    setStatus(`Erro ao gerar capítulo ${num}`, '');
+    console.error(e);
+  }
+}
+
+function extrairRefs(texto) {
+  const match = texto.match(/---REFS---([\s\S]+?)---FIMREFS---/);
+  if (!match) return { textoLimpo: texto, refs: [] };
+  const refsRaw = match[1].trim();
+  const refs = refsRaw.split('\n').map(r => r.replace(/^\d+\.\s*/, '').trim()).filter(Boolean);
+  const textoLimpo = texto.replace(/---REFS---[\s\S]+?---FIMREFS---/, '').trim();
+  return { textoLimpo, refs };
+}
+
+// ===== GERAR TUDO =====
+async function toggleGerarTudo() {
+  if (gerandoTudo) {
+    pararGeracao = true;
+    document.getElementById('btnGerarTudo').textContent = '✦ Gerar todos os capítulos';
+    document.getElementById('btnGerarTudo').classList.remove('parar');
+    gerandoTudo = false;
+    setStatus('Geração pausada', '');
+    return;
+  }
+
+  gerandoTudo = true;
+  pararGeracao = false;
+  const btn = document.getElementById('btnGerarTudo');
+  btn.textContent = '⬛ Parar geração';
+  btn.classList.add('parar');
+  document.getElementById('progressoArea').style.display = 'block';
+
+  const todos = [];
+  ESTRUTURA.forEach(p => p.capitulos.forEach(c => todos.push(c.num)));
+  let feitos = todos.filter(n => estado[n].status === 'feito').length;
+
+  for (const num of todos) {
+    if (pararGeracao) break;
+    if (estado[num].status === 'feito') continue;
+
+    if (capAtivo !== num) abrirCap(num);
+    await gerarCap(num);
+
+    feitos++;
+    const pct = Math.round((feitos / 27) * 100);
+    document.getElementById('progressoFill').style.width = pct + '%';
+    document.getElementById('progressoTexto').textContent = `${feitos} / 27 capítulos`;
+
+    await new Promise(r => setTimeout(r, 300));
+  }
+
+  gerandoTudo = false;
+  pararGeracao = false;
+  btn.textContent = '✦ Gerar todos os capítulos';
+  btn.classList.remove('parar');
+  setStatus('Livro completo gerado!', 'ok');
+}
+
+// ===== DOWNLOAD DOCX =====
+async function baixarDocx(num) {
+  const cap = encontrarCap(num);
+  const st = estado[num];
+  if (!st.texto) return;
+
+  setStatus('Gerando arquivo .docx...', 'gerando');
+
+  // Enviar para Claude gerar o script Node.js e executar via API
+  // Aqui usamos a abordagem de gerar o .docx via API intermediária
+  // Como não temos backend, vamos gerar um HTML imprimível como .docx alternativo
+
+  // Criar blob HTML formatado para Word
+  const htmlWord = gerarHtmlWord(cap, st);
+  const blob = new Blob(['\ufeff' + htmlWord], { type: 'application/msword' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `Cap${String(num).padStart(2,'0')}_${cap.titulo.replace(/[^a-zA-Z0-9]/g,'_').slice(0,35)}_DraCamilaLino.doc`;
+  a.click();
+  setStatus('Download concluído', 'ok');
+}
+
+function gerarHtmlWord(cap, st) {
+  const refsHtml = st.refs.length > 0
+    ? `<hr style="border:1px solid #ccc; margin-top:40px">
+       <h3 style="font-family:Georgia;color:#3d1a6e;margin-bottom:12px">Referências</h3>
+       <ol style="font-size:10pt;line-height:1.6;color:#333">${st.refs.map(r => `<li style="margin-bottom:6px">${r}</li>`).join('')}</ol>`
+    : '';
+
+  const textoHtml = st.texto
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/### (.*?)(\n|$)/g, '<h3 style="font-family:Georgia;color:#3d1a6e;font-size:12pt;margin:18pt 0 8pt;text-transform:uppercase;letter-spacing:1px">$1</h3>')
+    .replace(/\[(\d+)\]/g, '<sup style="color:#c9a84c;font-size:8pt">[$1]</sup>')
+    .split(/\n\n+/).filter(p => p.trim())
+    .map(p => {
+      p = p.trim();
+      if (p.startsWith('<h')) return p;
+      return `<p style="font-family:Georgia;font-size:11pt;line-height:1.8;text-align:justify;margin-bottom:10pt;text-indent:1.5cm">${p.replace(/\n/g, ' ')}</p>`;
+    }).join('');
+
+  return `
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { margin: 3cm 2.5cm 2.5cm 3cm; }
+  body { font-family: Georgia; font-size: 11pt; line-height: 1.8; color: #1a1a1a; }
+  h1 { font-family: Georgia; font-size: 18pt; color: #3d1a6e; margin-bottom: 6pt; font-weight: normal; }
+  h2 { font-family: Georgia; font-size: 13pt; color: #5c2d91; font-style: italic; font-weight: normal; margin-bottom: 20pt; }
+  .parte { font-family: Arial; font-size: 9pt; color: #c9a84c; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6pt; }
+  .rodape { font-family: Arial; font-size: 8pt; color: #666; border-top: 1px solid #ccc; margin-top: 40pt; padding-top: 8pt; }
+</style>
+</head>
+<body>
+<div class="parte">${cap.parte}</div>
+<h1>Capítulo ${cap.num} — ${cap.titulo}</h1>
+<h2>${cap.subtopicos}</h2>
+<hr style="border:1px solid #c9a84c; margin-bottom:24pt">
+${textoHtml}
+${refsHtml}
+<div class="rodape">Dra. Camila Lino — CRM 274280 SP · Excepcionalidades Femininas</div>
+</body>
+</html>`;
+}
+
+// ===== PROMPTS =====
+const SYSTEM_PROMPT = `Você é o assistente editorial da Dra. Camila Lino, médica pós-graduada em Psiquiatria (CRM 274280 SP). Está escrevendo capítulos do livro "Excepcionalidades Femininas: TDAH, Autismo e Altas Habilidades em Mulheres que passaram a vida tentando parecer normais".
+
+MISSÃO: Escrever capítulos completos, prontos para revisão editorial. Texto maduro, publicável, que a autora irá revisar e personalizar.
+
+VOZ DA AUTORA:
+- Parágrafos curtos (1 a 4 linhas), cada um com peso próprio
+- Frases de "selagem" em negrito ao final de seções: **Não é falta de força. É excesso de mundo.**
+- Perguntas retóricas em itálico: *"Por que eu nunca consigo ser suficiente?"*
+- Entrar na dor ANTES de trazer a saída — sempre
+- Primeira pessoa clínica estratégica: "Na clínica, encontro mulheres que..."
+- Clínico e humano simultaneamente — nunca distante, nunca superficial
+- Valida sem dramatizar, informa sem intimidar
+
+ESTRUTURA DE CADA CAPÍTULO:
+1. Abertura narrativa (entra na dor da leitora, sem nome próprio, 2-3 parágrafos)
+2. Desenvolvimento científico com notas [1], [2] etc. inline no texto
+3. Seção "Momento Iluminado": narrativa curta (150-200 palavras) de uma virada — tom quase literário
+4. "Movimentos que Iluminam": 3 perguntas de reflexão numeradas em negrito
+5. Parágrafo de fechamento
+
+REFERÊNCIAS:
+- Usar autores reais: Lotta Borg Skoglund, Sarah Hendrickx, Ellen Littman, Russell Barkley, Simon Baron-Cohen, Andrew Wakefield NÃO, DSM-5-TR, Tania Marshall, Patricia Quinn, Judith Gould, Michelle Garnett, Tony Attwood
+- 5 a 7 referências por capítulo em formato editorial: SOBRENOME, Nome. *Título em itálico*. Local: Editora, Ano.
+- Inserir referências no final usando o marcador exato: ---REFS--- (lista numerada) ---FIMREFS---
+- As notas [1], [2] no texto devem corresponder à numeração da lista
+
+IMPORTANTE: NÃO inventar referências. Só usar autores e obras que existam.`;
+
+function buildPrompt(cap, notas) {
+  return `Escreva o CAPÍTULO ${cap.num}: "${cap.titulo}"
+
+Subtópicos a cobrir: ${cap.subtopicos}
+Parte do livro: ${cap.parte}
+
+${notas ? `NOTAS DA AUTORA PARA ESTE CAPÍTULO:\n${notas}\n` : ''}
+
+Escreva o capítulo completo, com aproximadamente 1.200 a 1.600 palavras no corpo do texto (excluindo referências). Use notas numéricas [1], [2] etc. inline no texto onde houver embasamento científico.
+
+Ao final, adicione as referências EXATAMENTE neste formato:
+---REFS---
+1. SOBRENOME, Nome. *Título*. Cidade: Editora, Ano.
+2. ...
+---FIMREFS---`;
+}
+
+// INIT
+initApiKey();
+buildSidebar();
+</script>
+</body>
+</html>
