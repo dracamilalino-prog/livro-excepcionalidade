@@ -124,6 +124,7 @@ header{height:64px;background:linear-gradient(135deg,var(--bg2),var(--roxo2));bo
       <button class="sbtn sbtn-o" id="BTG" onclick="GT()">&#10022; Gerar livro completo</button>
       <button class="sbtn sbtn-a" onclick="BZ()">&#8595; Baixar ZIP (todos)</button>
       <button class="sbtn sbtn-v" id="BFINAL" onclick="BC()" style="display:none">&#128218; Gerar livro final (.doc)</button>
+      <button class="sbtn" style="background:rgba(255,255,255,.06);color:var(--txt2);font-size:.7rem;padding:6px" onclick="LIMPAR()">&#128465; Limpar progresso salvo</button>
       <div class="prog" id="PG"><div class="prog-t"><div class="prog-f" id="PF"></div></div><div class="prog-txt" id="PT">0 / 32</div></div>
     </div>
     <div class="side-lista" id="SL"></div>
@@ -273,7 +274,7 @@ function GP(id){
       var ba=document.querySelector(".bacs");
       if(ba&&!document.getElementById("BDD")){var b=document.createElement("button");b.className="bac bac-d";b.id="BDD";b.textContent="Baixar .doc";b.onclick=(function(xid){return function(){DP(xid);};})(id);ba.appendChild(b);}
     }
-    SS(p.t+" gerado!","ok");VF();
+    SS(p.t+" gerado!","ok");SALVAR();VF();
   })
   .catch(function(e){
     E[id].status="pendente";UI(id);
@@ -346,23 +347,96 @@ function BC(){
   var ft=P.filter(function(p){return E[p.id].status==="feito";});
   if(!ft.length){SS("Nenhum capitulo gerado ainda.","");return;}
   SS("Gerando livro completo...","g");
-  var css='<style>@page{size:16cm 23cm;margin:3cm 2.5cm 2.5cm 3cm}body{font-family:Georgia;font-size:11pt;line-height:1.8;color:#1a1a1a}h1{font-family:Georgia;font-size:16pt;color:#2d1050;font-weight:normal;margin-bottom:4pt}strong{color:#2d1050}.np{page-break-before:always}</style>';
-  var capa='<div style="text-align:center;padding-top:100pt;page-break-after:always"><div style="font-family:Arial;font-size:8pt;color:#c9a84c;letter-spacing:3px;text-transform:uppercase;margin-bottom:20pt">Dra. Camila Lino</div><div style="font-family:Georgia;font-size:26pt;font-weight:bold;color:#2d1050;line-height:1.2;margin-bottom:10pt">EXCEPCIONALIDADES<br>FEMININAS</div><div style="font-family:Georgia;font-size:11pt;color:#4a1a8c;font-style:italic;margin-bottom:40pt">TDAH &middot; Autismo &middot; Altas Habilidades</div><div style="font-family:Arial;font-size:8.5pt;color:#888;margin-bottom:60pt">O que ninguem percebe quando a mulher aprende a mascarar tudo</div><div style="font-family:Arial;font-size:7.5pt;color:#aaa">CRM 274280 SP</div></div>';
+
+  var css='<style>'
+    +'@page{size:16cm 23cm;margin:3cm 2.5cm 2.5cm 3cm}'
+    +'body{font-family:Georgia;font-size:11pt;line-height:1.8;color:#1a1a1a}'
+    +'h1{font-family:Georgia;font-size:16pt;color:#2d1050;font-weight:normal;margin:0 0 4pt}'
+    +'strong{color:#2d1050}'
+    +'.np{page-break-before:always;margin-top:0;padding-top:0}'
+    +'</style>';
+
+  var capa='<div style="text-align:center;page-break-after:always">'
+    +'<br><br><br><br><br><br>'
+    +'<div style="font-family:Arial;font-size:8pt;color:#c9a84c;letter-spacing:3px;text-transform:uppercase;margin-bottom:18pt">Dra. Camila Lino</div>'
+    +'<div style="font-family:Georgia;font-size:26pt;font-weight:bold;color:#2d1050;line-height:1.2;margin-bottom:10pt">EXCEPCIONALIDADES<br>FEMININAS</div>'
+    +'<div style="font-family:Georgia;font-size:11pt;color:#4a1a8c;font-style:italic;margin-bottom:36pt">TDAH &middot; Autismo &middot; Altas Habilidades</div>'
+    +'<div style="font-family:Arial;font-size:8.5pt;color:#888;margin-bottom:50pt">O que ninguem percebe quando a mulher aprende a mascarar tudo</div>'
+    +'<div style="font-family:Arial;font-size:7.5pt;color:#aaa">CRM 274280 SP &mdash; Medica, Pos-graduada em Psiquiatria</div>'
+    +'</div>';
+
   var corpo=ft.map(function(p,i){
-    var st=E[p.id];var rf="";
-    if(st.refs&&st.refs.length){rf='<div style="margin-top:24pt;border-top:1px solid #ddd;padding-top:14pt"><p style="font-family:Arial;font-size:9pt;color:#2d1050;text-transform:uppercase;margin-bottom:8pt;text-indent:0">Referencias</p><ol style="font-size:9pt;line-height:1.6;color:#555">'+st.refs.map(function(r){return"<li>"+r+"</li>";}).join("")+"</ol></div>";}
-    return'<div class="'+(i>0?"np":"")+'">'+'<div style="font-family:Arial;font-size:7pt;color:#c9a84c;letter-spacing:2px;text-transform:uppercase;margin-bottom:4pt">'+p.g+"</div>"+"<h1>"+p.t+"</h1>"+'<hr style="border:1px solid #c9a84c;margin-bottom:16pt">'+PW(st.texto)+rf+'<div style="font-family:Arial;font-size:7pt;color:#aaa;border-top:1px solid #ddd;margin-top:28pt;padding-top:5pt">Dra. Camila Lino &mdash; CRM 274280 SP</div></div>';
-  }).join("");
-  var doc='<!DOCTYPE html><html><head><meta charset="UTF-8">'+css+'</head><body>'+capa+corpo+"</body></html>";
+    var st=E[p.id];
+    var rf="";
+    if(st.refs&&st.refs.length){
+      rf='<div style="margin-top:20pt;border-top:1px solid #ddd;padding-top:12pt">'
+        +'<p style="font-family:Arial;font-size:8pt;color:#2d1050;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6pt;text-indent:0">Referencias</p>'
+        +'<ol style="font-size:9pt;line-height:1.6;color:#555;padding-left:16pt">'
+        +st.refs.map(function(r){return'<li style="margin-bottom:3pt">'+r+'</li>';}).join('')
+        +'</ol></div>';
+    }
+    return'<div class="'+(i>0?"np":"") +'">'
+      +'<div style="font-family:Arial;font-size:7pt;color:#c9a84c;letter-spacing:2px;text-transform:uppercase;margin-bottom:4pt">'+p.g+'</div>'
+      +'<h1 style="font-family:Georgia;font-size:16pt;color:#2d1050;font-weight:normal;margin-bottom:4pt">'+p.t+'</h1>'
+      +'<hr style="border:1px solid #c9a84c;margin-bottom:14pt">'
+      +PW(st.texto)
+      +rf
+      +'<div style="font-family:Arial;font-size:7pt;color:#aaa;border-top:1px solid #ddd;margin-top:24pt;padding-top:4pt">Dra. Camila Lino &mdash; CRM 274280 SP &mdash; Excepcionalidades Femininas</div>'
+      +'</div>';
+  }).join('');
+
+  var doc='<!DOCTYPE html><html><head><meta charset="UTF-8">'+css+'</head><body>'+capa+corpo+'</body></html>';
   var blob=new Blob(["﻿"+doc],{type:"application/msword"});
-  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="ExcepcionalidadesFemininas_COMPLETO_DraCamilaLino.doc";a.click();
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="ExcepcionalidadesFemininas_COMPLETO_DraCamilaLino.doc";a.click();
   SS("Livro completo baixado! "+ft.length+" pecas.","ok");
 }
+
+function SALVAR(){
+  try{
+    var dados={estado:{},resumos:{}};
+    P.forEach(function(p){
+      if(E[p.id].status==="feito"){
+        dados.estado[p.id]={status:"feito",texto:E[p.id].texto,refs:E[p.id].refs,notas:E[p.id].notas};
+      }
+    });
+    dados.resumos=R;
+    localStorage.setItem("ef_progresso",JSON.stringify(dados));
+  }catch(err){console.log("Erro ao salvar:",err);}
+}
+function CARREGAR(){
+  try{
+    var raw=localStorage.getItem("ef_progresso");
+    if(!raw)return;
+    var dados=JSON.parse(raw);
+    if(dados.estado){
+      Object.keys(dados.estado).forEach(function(id){
+        if(E[id]){E[id]=dados.estado[id];}
+      });
+    }
+    if(dados.resumos){R=dados.resumos;}
+    var qt=P.filter(function(p){return E[p.id].status==="feito";}).length;
+    if(qt>0){SS(qt+" capitulos restaurados do cache!","ok");VF();}
+  }catch(err){console.log("Erro ao carregar:",err);}
+}
+function LIMPAR(){
+  if(confirm("Apagar todo o progresso salvo e comecar do zero?")){
+    localStorage.removeItem("ef_progresso");
+    P.forEach(function(p){E[p.id]={status:"pendente",texto:"",refs:[],notas:""};});
+    R={};BS();
+    document.getElementById("ED").innerHTML="<div class=\"welcome\"><div class=\"wtit\">&#10022; Excepcionalidades Femininas</div><div class=\"wsub\">Progresso apagado. Selecione uma peca para comecar.</div></div>";
+    SS("Progresso apagado.","");VF();
+  }
+}
+
+
 var SYS=[
   "Voce e o assistente editorial da Dra. Camila Lino, medica pos-graduada em Psiquiatria (CRM 274280 SP), coautora do livro Excepcionalidades Femininas.",
   "",
   "IDENTIDADE DA AUTORA:",
-  "A Dra. Camila Lino recebeu seu proprio diagnostico de ASD Nivel 1 mais TDAH Combinado aos 35 anos. Ela sabe na pele o que e descobrir isso tarde. Integre naturalmente: fui uma dessas mulheres, sei o que e olhar para tras e reescrever a historia. Nao exagere, mas nao omita.",
+  "A Dra. Camila Lino recebeu seu proprio diagnostico de ASD Nivel 1 mais TDAH Combinado aos 35 anos. Ela sabe na pele o que e descobrir isso tarde. Integre naturalmente no texto: 'fui uma dessas mulheres', 'sei o que e olhar para tras e reescrever a historia'. Nao exagere, mas nao omita.",
+  "",
+  "ATENCAO: NUNCA use o nome real da autora ou mencione que ela e psiquiatra nos exemplos clinicos ou casos do livro. Casos clinicos devem ser SEMPRE ficticios e anonimos: 'Marina, 34 anos, professora...', 'Juliana, 28 anos, arquiteta...'. A voz de primeira pessoa da autora aparece apenas como perspectiva clinica geral ('No consultorio, encontro mulheres que...'), nunca como caso pessoal identificavel.",
   "",
   "NIVEL: Estilo Ana Beatriz Barbosa Silva (Mentes Inquietas) + Leonardo Maranho (A Vida com Cetamina). O profissional aprende. A paciente chora de reconhecimento. O Cap 27 deixa a mulher se sentindo extraordinaria sem dizer isso — ela fecha e sente.",
   "",
@@ -370,15 +444,15 @@ var SYS=[
   "- Paragrafos de 3 a 5 linhas",
   "- Citacao de abertura: > frase de autor real — Nome",
   "- Referencias [1][2] inline no texto",
-  "- Casos clinicos ficticios: Marina, 34 anos, engenheira...",
+  "- Casos clinicos SEMPRE ficticios com nomes inventados: Marina, Julia, Ana, Beatriz, Sofia...",
   "- NUNCA titulos visiveis: Introducao, Desenvolvimento, Conclusao",
   "- Texto FLUI como livro, nao artigos separados",
   "- Portugues brasileiro correto",
   "- NUNCA comece com: E importante, Sabemos que, Podemos observar",
-  "- Voz clinica em primeira pessoa: No consultorio, encontro mulheres que...",
+  "- Voz clinica em primeira pessoa generica: 'No consultorio, encontro mulheres que...'",
   "",
   "ESTRUTURA INVISIVEL:",
-  "1. Frase celebre blockquote: > frase — Autor",
+  "1. Frase celebre blockquote: > frase — Autor real",
   "2. Cena de abertura: entra direto na dor (200-300 palavras)",
   "3. Desenvolvimento: narrativa emocional + ciencia integrada com [1][2] (600-800 palavras)",
   "4. Momento Iluminado: virada em terceira pessoa, tom literario (120-160 palavras)",
@@ -403,10 +477,10 @@ var SYS=[
 
 function MP(p,notas,ctx){
   var esp={
-    "citacao":"Crie a CITACAO DE ABERTURA do livro. Uma frase autoral da Dra. Camila Lino que capture tudo. Gere 3 opcoes e indique a recomendada.",
-    "agradecimentos":"Escreva os AGRADECIMENTOS. Tom pessoal e autentico. Mencione: pacientes anonimas, Douglas (parceiro), fe crista, Dr. Leonardo Maranho, diagnostico tardio aos 35 anos. 400-500 palavras.",
-    "prefacio":"Crie espaco reservado para PREFACIO com nota editorial e modelo para o prefaciador. Versao preliminar de 300 palavras.",
-    "introducao":"Escreva a INTRODUCAO. Cena universal de abertura, apresenta o livro e as 8 partes, termina com convite nao promessa de cura. 700-900 palavras.",
+    "citacao":"Crie a CITACAO DE ABERTURA do livro. Uma frase autoral da Dra. Camila Lino que capture tudo. Gere 3 opcoes e indique a recomendada. Exemplo do nivel: Voce nao e demais. Voce e inteira demais para um mundo que nao foi feito para mentes como a sua.",
+    "agradecimentos":"Escreva os AGRADECIMENTOS do livro. Tom pessoal e autentico. Mencione: pacientes anonimas que inspiraram, Douglas (parceiro), fe crista, Dr. Leonardo Maranho (medico e referencia), a propria jornada de descoberta do diagnostico tardio aos 35 anos. 400-500 palavras. Cada agradecimento com peso real.",
+    "prefacio":"Crie ESPACO RESERVADO PARA PREFACIO com nota editorial e modelo para o prefaciador. Versao preliminar de 300 palavras de referencia. Tom profissional e acolhedor.",
+    "introducao":"Escreva a INTRODUCAO do livro. Cena universal de abertura de uma mulher que sempre se sentiu errada. Apresenta o livro e as 8 partes. Termina com convite — nao promessa de cura, mas de companhia e verdade. 700-900 palavras.",
     "refs":"Compile REFERENCIAS GERAIS por tema: TDAH feminino, Autismo feminino, Altas Habilidades, Neurodivergencia e genero, Manuais diagnosticos. Apenas obras REAIS. Formato ABNT."
   };
   var base=ctx?ctx+"\n\n":"";
@@ -416,14 +490,16 @@ function MP(p,notas,ctx){
   return base+"Escreva o CAPITULO "+num+": "+p.t+"\nSubtopicos: "+p.s+"\nParte: "+p.g+nf+"\n\nConecte ao que veio antes. Frase celebre de autor real sobre o tema. Extensao: 1.200 a 1.500 palavras.";
 }
 
-IK();BS();
+
+
 function VF(){
   var tot=P.length;
   var ft=P.filter(function(p){return E[p.id].status==="feito";}).length;
   var btn=document.getElementById("BFINAL");
   if(btn){btn.style.display=ft===tot?"block":"none";}
 }
-IK();BS();
+
+IK();BS();CARREGAR();
 </script>
 </body>
 </html>
