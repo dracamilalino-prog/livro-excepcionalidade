@@ -174,6 +174,7 @@
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--borda); border-radius: 2px; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 
@@ -207,6 +208,8 @@
   <div class="sidebar">
     <div class="sidebar-top">
       <button class="btn-gerar-tudo" id="btnGerarTudo" onclick="toggleGerarTudo()">✦ Gerar livro completo</button>
+      <button class="btn-gerar-tudo" style="background:linear-gradient(135deg,#1a3a5c,#2980b9);margin-top:4px" onclick="baixarZip()">⬇ Baixar ZIP completo</button>
+      <button class="btn-gerar-tudo" style="background:linear-gradient(135deg,#1a5c2a,#27ae60);margin-top:4px" onclick="baixarDocUnico()">📄 Baixar livro completo (.doc)</button>
       <div class="progresso" id="progressoArea">
         <div class="progresso-bar"><div class="progresso-fill" id="progressoFill" style="width:0%"></div></div>
         <div class="progresso-texto" id="progressoTexto">0 / 31 pecas</div>
@@ -581,6 +584,7 @@ function baixarDoc(id) {
   .secao { font-family: Arial; font-size: 8pt; color: #c9a84c; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5pt; }
   .rodape { font-family: Arial; font-size: 7.5pt; color: #888; border-top: 1px solid #ddd; margin-top: 36pt; padding-top: 6pt; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 <div class="secao">${p.secao}</div>
@@ -603,55 +607,60 @@ ${refsHtml}
 // ========== PROMPTS ==========
 const SYSTEM_PROMPT = `Voce e o assistente editorial da Dra. Camila Lino, medica pos-graduada em Psiquiatria (CRM 274280 SP), coautora do livro "Excepcionalidades Femininas: TDAH, Autismo e Altas Habilidades — O que ninguem percebe quando a mulher aprende a mascarar tudo".
 
-REFERENCIA DE ESTILO — NIVEL ANA BEATRIZ BARBOSA SILVA:
-Este livro deve atingir o nivel de "Mentes Inquietas" de Ana Beatriz Barbosa Silva: acessivel o suficiente para um leigo chorar de reconhecimento, profundo o suficiente para um psiquiatra aprender algo. Casos clinicos reais (anonimizados), linguagem direta, sem academicismo desnecessario, sem condescendencia. O leitor fecha o livro pensando: "esse livro valeu cada centavo".
+IDENTIDADE DA AUTORA (integre naturalmente ao texto quando relevante):
+A Dra. Camila Lino recebeu seu proprio diagnostico de ASD Nivel 1 + TDAH Combinado aos 35 anos. Ela sabe na pele o que e acordar um dia e descobrir que a vida inteira fazia sentido — e ao mesmo tempo perceber que voce perdeu decadas sem saber quem realmente era. Essa experiencia pessoal permeia o livro sem ser o centro — aparece como "fui uma dessas mulheres" ou "sei o que e olhar para tras e reescrever a historia". Nao exagere, mas nao omita.
 
-VOZ DA AUTORA (Dra. Camila Lino):
-- Paragrafos curtos e densos — cada um carrega um pensamento completo
-- A primeira frase de cada paragrafo e uma "porta" — deve puxar o leitor para dentro
-- Voz clinica em primeira pessoa: "No consultorio, encontro mulheres que...", "Na minha pratica, vi..."
-- Entra na dor ANTES de nomear — valida antes de explicar
-- Informacao cientifica integrada ao texto narrativo, com referencias [1][2] inline
-- Frases de fechamento com peso — unicas, relacionadas ao tema
-- Portugues brasileiro correto, virgulas precisas, pontuacao cuidadosa
-- NUNCA comece paragrafo com "E importante...", "Sabemos que...", "Podemos observar..."
-- NUNCA use titulos de secao visiveis como "Introducao", "Desenvolvimento", "Conclusao"
-- O texto FLUI como um livro — o leitor nao ve estrutura, sente narrativa
+REFERENCIAS DE ESTILO OBRIGATORIAS:
+1. Ana Beatriz Barbosa Silva (Mentes Inquietas): casos clinicos reais anonimizados que o leitor se reconhece, paragrafos medios, ciencia integrada na narrativa, o leitor leigo chora e o profissional aprende.
+2. Leonardo Maranho (A Vida com... Cetamina): introducao direta ao leitor "voce que chegou ate aqui", dados epidemiologicos reais com notas de rodape [1][2], narrativa historica que ambienta o contexto cientifico, capitulos que comecoam com frase celebre de autor real.
 
-PUBLICO DUPLO (ambos lendo o mesmo texto):
-- Paciente/leitora: se reconhece, chora, entende, se valida
-- Profissional de saude: aprende, relembra, enxerga a clinica com novos olhos
+NIVEL EXIGIDO: O leitor fecha o livro pensando "que livro foda". O profissional pensa "aprendi, me diverti, valeu a compra". A paciente pensa "finalmente alguem entendeu".
+
+FORMATACAO DO TEXTO (OBRIGATORIA):
+- Paragrafos de 3 a 6 linhas — nem muito curtos nem muito longos
+- Citacao de abertura do capitulo em destaque: "> [frase] — [Autor Real]"
+- Referencias numericas [1] inline no texto, nunca em parenteses
+- Casos clinicos anonimizados: "Marina, 34 anos, engenheira..." (nomes ficticios)
+- Dados epidemiologicos reais com nota [1]
+- Nao use titulos de secao visiveis — o texto flui como um livro
+- Quando precisar de dado clinico denso: "### Para o profissional de saude" (use so 1x por capitulo, max)
+- Portugues brasileiro correto, virgulas e pontuacao precisas
+- NUNCA comece paragrafo com: "E importante...", "Sabemos que...", "Podemos observar...", "Neste capitulo..."
+
+ESTRUTURA DO CAPITULO (invisivel — o leitor so sente a narrativa):
+[ABERTURA — 250 a 350 palavras]
+Frase celebre real em blockquote. Depois: cena de uma mulher anonima que qualquer leitora reconhece. Entra direto na dor — sem apresentar o tema explicitamente. Conecta ao capitulo anterior com naturalidade.
+
+[DESENVOLVIMENTO — 700 a 900 palavras]
+Alterna entre narrativa emocional e ciencia integrada. Referencias [1][2] aparecem dentro dos paragrafos. Casos clinicos ficticios mas verossimeis. O profissional aprende. A paciente se ve.
+
+[MOMENTO ILUMINADO — 120 a 160 palavras]
+Narrativa breve de uma virada. Terceira pessoa. Sem nome proprio. Tom quase literario. Esperanca concreta — nao vazia.
+
+[MOVIMENTOS QUE ILUMINAM]
+**1.** [Pergunta em negrito]
+**2.** [Pergunta em negrito]
+**3.** [Pergunta em negrito]
+Servem para a leitora refletir e para o clinico usar em consulta.
+
+[FECHAMENTO — 100 a 150 palavras]
+Resume sem repetir. Ultima frase forte em negrito. Prepara o proximo capitulo organicamente: "No proximo capitulo, vamos..." — mas de forma narrativa, nao mecanica.
 
 COESAO DO LIVRO:
-Este e um livro UNICO. Cada peca conhece o que veio antes e prepara o que vem depois.
-A leitora faz uma JORNADA: de se sentir errada -> entender o que tem -> se aceitar -> buscar cuidado.
-
-ESTRUTURA DE CADA CAPITULO (sem mostrar os titulos — o texto flui):
-1. Frase celebre de abertura (em blockquote com "> ")
-2. Cena ou pergunta que a leitora ja viveu — entra direto na dor (200-300 palavras)
-3. Desenvolvimento que alterna narrativa e ciencia integrada (600-800 palavras)
-   — referencias [1][2] aparecem naturalmente dentro do texto
-   — quando precisar de dado tecnico denso: "### Para o profissional de saude" (use raramente)
-4. Momento Iluminado: narrativa curta de uma virada real (100-150 palavras)
-5. Movimentos que Iluminam: 3 perguntas em negrito numeradas
-6. Fechamento que prepara o proximo capitulo (100-150 palavras) — ultima frase forte em negrito
+Este e UM livro. A leitora faz uma jornada: de se sentir errada e mascarada → entender o que tem → se aceitar → buscar cuidado → se sentir extraordinaria. O ultimo capitulo deve deixar a mulher com a sensacao de que ela e um ser extraordinario — sem dizer isso explicitamente.
 
 REFERENCIAS:
-- Apenas obras REAIS: Lotta Borg Skoglund, Sarah Hendrickx, Ellen Littman, Russell Barkley, Simon Baron-Cohen, DSM-5-TR, Tania Marshall, Patricia Quinn, Judith Gould, Michelle Garnett, Tony Attwood, Ned Hallowell, Ana Beatriz Barbosa Silva
-- 5 a 7 por capitulo
-- Formato: SOBRENOME, Nome. *Titulo*. Cidade: Editora, Ano.
-- Ao final do texto, EXATAMENTE assim:
+Apenas obras REAIS. Autores validos: Lotta Borg Skoglund, Sarah Hendrickx, Ellen Littman, Russell Barkley, Simon Baron-Cohen, DSM-5-TR, Tania Marshall, Patricia Quinn, Judith Gould, Michelle Garnett, Tony Attwood, Ned Hallowell, Ana Beatriz Barbosa Silva, Elaine Aron, Kazimierz Dabrowski.
+5 a 7 por capitulo. Formato: SOBRENOME, Nome. *Titulo*. Cidade: Editora, Ano.
+Ao final EXATAMENTE:
 ---REFS---
 1. SOBRENOME, Nome. *Titulo*. Cidade: Editora, Ano.
 ---FIMREFS---
-
-RESUMO PARA CONTEXTO:
-Ao final de cada peca gerada, adicione um resumo de 2-3 linhas do que foi coberto, EXATAMENTE assim:
+Resumo para contexto ao final:
 ---RESUMO---
-[resumo de 2-3 linhas do conteudo e tom desta peca, para guiar a proxima]
+[2-3 linhas do que foi coberto e tom, para guiar o proximo capitulo]
 ---FIMRESUMO---
-
-NAO inventar referencias. NAO usar titulos de secao visiveis. NAO simplificar demais. NAO academizar demais.`;
+NAO inventar referencias. NAO usar titulos de secao visiveis.`;
 
 function buildPrompt(p, notas, contexto) {
   const especificos = {
@@ -675,6 +684,138 @@ ${notas ? 'NOTAS DA AUTORA: ' + notas : ''}
 Lembre: este capitulo faz parte de uma jornada. O leitor ja passou por tudo que veio antes. Conecte naturalmente. A frase celebre de abertura deve ter a ver especificamente com o tema deste capitulo — pode ser de cientistas, filosofos, escritores, ou da propria autora.
 
 Extensao: 1.200 a 1.500 palavras no corpo do texto.`;
+}
+
+// ========== ZIP COMPLETO ==========
+async function baixarZip() {
+  const feitos = PECAS.filter(p => estado[p.id].status === 'feito');
+  if (feitos.length === 0) { setStatus('Nenhuma peca gerada ainda.', ''); return; }
+  setStatus('Gerando ZIP...', 'gerando');
+  const zip = new JSZip();
+  feitos.forEach(p => {
+    const st = estado[p.id];
+    const html = gerarHtmlDoc(p, st);
+    const nome = p.id === 'citacao' ? '00_Citacao' :
+                 p.id === 'agradecimentos' ? '01_Agradecimentos' :
+                 p.id === 'prefacio' ? '02_Prefacio' :
+                 p.id === 'introducao' ? '03_Introducao' :
+                 p.id === 'referencias' ? '31_Referencias' :
+                 p.id.replace('c','').padStart(2,'0') + '_' + p.titulo.replace(/[^a-zA-Z0-9]/g,'_').slice(0,30);
+    zip.file('ExcepcionalidadesFemininas/' + nome + '.doc', '\ufeff' + html);
+  });
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ExcepcionalidadesFemininas_DraCamilaLino.zip';
+  a.click();
+  setStatus('ZIP baixado com sucesso!', 'ok');
+}
+
+// ========== DOC UNICO ==========
+function baixarDocUnico() {
+  const feitos = PECAS.filter(p => estado[p.id].status === 'feito');
+  if (feitos.length === 0) { setStatus('Nenhuma peca gerada ainda.', ''); return; }
+  setStatus('Gerando livro completo...', 'gerando');
+  
+  let htmlCompleto = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
+<head><meta charset="UTF-8">
+<style>
+  @page { size: 16cm 23cm; margin: 3cm 2.5cm 2.5cm 3cm; }
+  body { font-family: Georgia; font-size: 11pt; line-height: 1.8; color: #1a1a1a; }
+  h1 { font-family: Georgia; font-size: 16pt; color: #3d1a6e; font-weight: normal; margin: 0 0 4pt; }
+  h2 { font-family: Georgia; font-size: 10.5pt; color: #5c2d91; font-style: italic; font-weight: normal; margin: 0 0 16pt; }
+  h3 { font-family: Arial; font-size: 9pt; color: #3d1a6e; text-transform: uppercase; letter-spacing: 0.5px; margin: 14pt 0 6pt; }
+  p { font-family: Georgia; font-size: 11pt; line-height: 1.8; text-align: justify; margin-bottom: 8pt; text-indent: 1.25cm; }
+  p.sem-indent { text-indent: 0; }
+  blockquote { border-left: 3px solid #c9a84c; margin: 10pt 0 10pt 1cm; padding: 8pt 14pt; background: #f9f5ff; font-style: italic; color: #555; font-size: 10.5pt; }
+  .secao { font-family: Arial; font-size: 7.5pt; color: #c9a84c; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4pt; }
+  .rodape { font-family: Arial; font-size: 7.5pt; color: #aaa; border-top: 1px solid #ddd; margin-top: 32pt; padding-top: 5pt; }
+  .quebra { page-break-before: always; }
+  .refs-section { margin-top: 24pt; padding-top: 16pt; border-top: 1px solid #ddd; }
+  sup { font-size: 7pt; color: #c9a84c; }
+  strong { color: #3d1a6e; }
+</style>
+</head><body>`;
+
+  // Capa
+  htmlCompleto += `<div style="text-align:center;padding:80pt 0;page-break-after:always">
+    <div style="font-family:Arial;font-size:8pt;color:#c9a84c;letter-spacing:3px;text-transform:uppercase;margin-bottom:20pt">Dra. Camila Lino</div>
+    <div style="font-family:Georgia;font-size:28pt;color:#3d1a6e;font-weight:bold;line-height:1.2;margin-bottom:8pt">EXCEPCIONALIDADES<br>FEMININAS</div>
+    <div style="font-family:Georgia;font-size:12pt;color:#5c2d91;font-style:italic;margin-bottom:40pt">TDAH · Autismo · Altas Habilidades</div>
+    <div style="font-family:Arial;font-size:9pt;color:#888">O que ninguém percebe quando a mulher aprende a mascarar tudo</div>
+    <div style="margin-top:60pt;font-family:Arial;font-size:7.5pt;color:#aaa">Dra. Camila Lino — CRM 274280 SP<br>Médica, Pós-graduada em Psiquiatria</div>
+  </div>`;
+
+  feitos.forEach((p, i) => {
+    const st = estado[p.id];
+    const textoHtml = processarTextoParaDoc(st.texto);
+    const refsHtml = st.refs.length > 0
+      ? `<div class="refs-section"><h3>Referências</h3><ol style="font-size:9pt;line-height:1.6;color:#555">${st.refs.map(r => `<li style="margin-bottom:4pt">${r}</li>`).join('')}</ol></div>`
+      : '';
+    
+    htmlCompleto += `<div class="${i > 0 ? 'quebra' : ''}">
+      <div class="secao">${p.secao}</div>
+      <h1>${p.titulo}</h1>
+      ${textoHtml}
+      ${refsHtml}
+      <div class="rodape">Dra. Camila Lino — CRM 274280 SP · Excepcionalidades Femininas</div>
+    </div>`;
+  });
+
+  htmlCompleto += '</body></html>';
+
+  const blob = new Blob(['\ufeff' + htmlCompleto], { type: 'application/msword' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ExcepcionalidadesFemininas_COMPLETO_DraCamilaLino.doc';
+  a.click();
+  setStatus('Livro completo baixado!', 'ok');
+}
+
+function processarTextoParaDoc(texto) {
+  if (!texto) return '';
+  return texto
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^#{1,3}\s*(.+)$/gm, (m, t) => `<h3>${t.trim()}</h3>`)
+    .replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid #ddd;margin:10pt 0">')
+    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+    .replace(/\[(\d+)\]/g, '<sup>[$1]</sup>')
+    .split(/\n\n+/).filter(x => x.trim())
+    .map(x => {
+      x = x.trim();
+      if (x.startsWith('<h') || x.startsWith('<hr') || x.startsWith('<blockquote')) return x;
+      return `<p>${x.replace(/\n/g,' ')}</p>`;
+    }).join('');
+}
+
+function gerarHtmlDoc(p, st) {
+  const textoHtml = processarTextoParaDoc(st.texto);
+  const refsHtml = st.refs.length > 0
+    ? `<div class="refs-section"><h3>Referencias</h3><ol>${st.refs.map(r => `<li>${r}</li>`).join('')}</ol></div>`
+    : '';
+  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
+<head><meta charset="UTF-8">
+<style>
+  @page { size: 16cm 23cm; margin: 3cm 2.5cm 2.5cm 3cm; }
+  body { font-family: Georgia; font-size: 11pt; line-height: 1.8; color: #1a1a1a; }
+  h1 { font-family: Georgia; font-size: 16pt; color: #3d1a6e; font-weight: normal; margin-bottom: 4pt; }
+  h3 { font-family: Arial; font-size: 9pt; color: #3d1a6e; text-transform: uppercase; letter-spacing: 0.5px; margin: 14pt 0 6pt; }
+  p { font-family: Georgia; font-size: 11pt; line-height: 1.8; text-align: justify; margin-bottom: 8pt; text-indent: 1.25cm; }
+  blockquote { border-left: 3px solid #c9a84c; margin: 10pt 0 10pt 1cm; padding: 8pt 14pt; background: #f9f5ff; font-style: italic; color: #555; font-size: 10.5pt; }
+  .secao { font-family: Arial; font-size: 7.5pt; color: #c9a84c; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4pt; }
+  .rodape { font-family: Arial; font-size: 7.5pt; color: #aaa; border-top: 1px solid #ddd; margin-top: 32pt; padding-top: 5pt; }
+  .refs-section { margin-top: 24pt; border-top: 1px solid #ddd; padding-top: 14pt; }
+  sup { font-size: 7pt; color: #c9a84c; }
+  strong { color: #3d1a6e; }
+</style>
+</head><body>
+<div class="secao">${p.secao}</div>
+<h1>${p.titulo}</h1>
+${textoHtml}
+${refsHtml}
+<div class="rodape">Dra. Camila Lino — CRM 274280 SP · Excepcionalidades Femininas</div>
+</body></html>`;
 }
 
 // INIT
