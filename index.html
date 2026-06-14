@@ -288,9 +288,9 @@ function renderEditor(id) {
     + '<div class="notas"><label>Notas opcionais (casos clinicos, direcionamentos)</label>'
     + '<textarea id="notasEl">' + st.notas + '</textarea></div>'
     + '<div class="acoes">'
-    + '<button class="btn btn-r" id="btnGerar" onclick="gerarPeca('' + id + '')">'
+    + '<button class="btn btn-r" id="btnGerar" onclick="gerarPeca(\"' + id + '\")">'
     + (st.status==='feito' ? 'Regenerar' : 'Gerar') + '</button>'
-    + (st.status==='feito' ? '<button class="btn btn-g" onclick="dlDoc('' + id + '')">Baixar .doc</button>' : '')
+    + (st.status==='feito' ? '<button class="btn btn-g" onclick="dlDoc(\"' + id + '\")">Baixar .doc</button>' : '')
     + '</div>'
     + conteudo;
 }
@@ -332,11 +332,7 @@ function getCtx(id) {
   var idx = PECAS.findIndex(function(x){ return x.id===id; });
   var ant = PECAS.slice(0, idx).filter(function(p){ return resumos[p.id]; }).slice(-3);
   if (!ant.length) return '';
-  return 'CONTEXTO (pecas anteriores):
-' + ant.map(function(p){ return '['+p.tit+']: '+resumos[p.id]; }).join('
-') + '
-
-Continue de forma fluida e conectada.';
+  return 'CONTEXTO (pecas anteriores):\n' + ant.map(function(p){ return '['+p.tit+']: '+resumos[p.id]; }).join('\n') + '\n\nContinue de forma fluida e conectada.';
 }
 
 // ===== GERAR =====
@@ -377,8 +373,7 @@ function gerarPeca(id) {
     var mRes = raw.match(/---RESUMO---([\s\S]+?)---FIMRESUMO---/);
     if (mRes) resumos[id] = mRes[1].trim();
     var mRef = raw.match(/---REFS---([\s\S]+?)---FIMREFS---/);
-    var refs = mRef ? mRef[1].trim().split('
-').map(function(r){ return r.replace(/^\d+\.\s*/,'').trim(); }).filter(Boolean) : [];
+    var refs = mRef ? mRef[1].trim().split('\n').map(function(r){ return r.replace(/^\d+\.\s*/,'').trim(); }).filter(Boolean) : [];
     var txt = raw.replace(/---RESUMO---[\s\S]+?---FIMRESUMO---/,'').replace(/---REFS---[\s\S]+?---FIMREFS---/,'').trim();
     estado[id].texto = txt;
     estado[id].refs = refs;
@@ -565,66 +560,31 @@ function baixarUnico() {
 }
 
 // ===== SYSTEM PROMPT =====
-var SYSPROMPT = 'Voce e o assistente editorial da Dra. Camila Lino, medica pos-graduada em Psiquiatria (CRM 274280 SP), coautora do livro "Excepcionalidades Femininas: TDAH, Autismo e Altas Habilidades".
-
-'
-  + 'IDENTIDADE DA AUTORA: A Dra. Camila Lino recebeu seu proprio diagnostico de ASD Nivel 1 + TDAH Combinado aos 35 anos. Ela sabe na pele o que e descobrir isso tarde. Integre naturalmente: "fui uma dessas mulheres", "sei o que e olhar para tras e reescrever a historia". Nao exagere.
-
-'
-  + 'NIVEL EXIGIDO: Estilo Ana Beatriz Barbosa Silva (Mentes Inquietas) + Leonardo Maranho (A Vida com Cetamina). O leitor fecha o livro pensando que foi o melhor que leu. A paciente chora de reconhecimento. O profissional aprende.
-
-'
-  + 'REGRAS ABSOLUTAS:
-'
-  + '- Paragrafos de 3 a 6 linhas
-'
-  + '- Citacao de abertura: "> [frase] — [Autor Real]"
-'
-  + '- Referencias [1][2] inline no texto
-'
-  + '- Casos clinicos ficticios: "Marina, 34 anos, engenheira..."
-'
-  + '- NUNCA titulos visiveis de secao (Introducao, Desenvolvimento, Conclusao)
-'
-  + '- O texto FLUI como um livro — o leitor sente narrativa, nao ve estrutura
-'
-  + '- Portugues brasileiro correto
-'
-  + '- NUNCA comece paragrafo com "E importante...", "Sabemos que...", "Podemos observar..."
-
-'
-  + 'ESTRUTURA (invisivel):
-'
-  + '1. Frase celebre em blockquote ("> frase — Autor")
-'
-  + '2. Cena de abertura — entra direto na dor da leitora (200-300 palavras)
-'
-  + '3. Desenvolvimento: alterna narrativa emocional e ciencia integrada (600-800 palavras)
-'
-  + '4. Momento Iluminado: narrativa de virada, terceira pessoa, 120-160 palavras
-'
-  + '5. Movimentos que Iluminam: **1.** **2.** **3.** perguntas em negrito
-'
-  + '6. Fechamento: resume, frase forte em negrito, prepara proximo capitulo (100-150 palavras)
-
-'
-  + 'ENCERRAMENTO DO LIVRO: O Cap 27 deve deixar a mulher se sentindo extraordinaria sem dizer isso — ela fecha e sente, nao le.
-
-'
-  + 'REFERENCIAS: Apenas obras REAIS. Autores: Lotta Borg Skoglund, Sarah Hendrickx, Ellen Littman, Russell Barkley, Simon Baron-Cohen, DSM-5-TR, Tania Marshall, Patricia Quinn, Tony Attwood, Ned Hallowell, Ana Beatriz Barbosa Silva.
-'
-  + '5 a 7 por capitulo. Formato: SOBRENOME, Nome. Titulo. Cidade: Editora, Ano.
-'
-  + 'Ao final EXATAMENTE:
-'
-  + '---REFS---
-1. ...
----FIMREFS---
-'
-  + '---RESUMO---
-[2-3 linhas do conteudo para guiar o proximo]
----FIMRESUMO---
-'
+var SYSPROMPT = 'Voce e o assistente editorial da Dra. Camila Lino, medica pos-graduada em Psiquiatria (CRM 274280 SP), coautora do livro "Excepcionalidades Femininas: TDAH, Autismo e Altas Habilidades".\n\n'
+  + 'IDENTIDADE DA AUTORA: A Dra. Camila Lino recebeu seu proprio diagnostico de ASD Nivel 1 + TDAH Combinado aos 35 anos. Ela sabe na pele o que e descobrir isso tarde. Integre naturalmente quando relevante.\n\n'
+  + 'NIVEL EXIGIDO: Estilo Ana Beatriz Barbosa Silva (Mentes Inquietas) + Leonardo Maranho. O leitor fecha o livro pensando que foi o melhor. A paciente chora de reconhecimento. O profissional aprende.\n\n'
+  + 'REGRAS ABSOLUTAS:\n'
+  + '- Paragrafos de 3 a 6 linhas\n'
+  + '- Citacao de abertura em blockquote: "> [frase] — [Autor Real]"\n'
+  + '- Referencias [1][2] inline no texto\n'
+  + '- Casos clinicos ficticios: "Marina, 34 anos, engenheira..."\n'
+  + '- NUNCA titulos visiveis de secao\n'
+  + '- O texto FLUI como livro — leitor sente narrativa, nao ve estrutura\n'
+  + '- Portugues brasileiro correto\n'
+  + '- NUNCA comece paragrafo com "E importante...", "Sabemos que...", "Podemos observar..."\n\n'
+  + 'ESTRUTURA (invisivel):\n'
+  + '1. Frase celebre em blockquote\n'
+  + '2. Cena de abertura — entra na dor da leitora (200-300 palavras)\n'
+  + '3. Desenvolvimento: alterna narrativa emocional e ciencia integrada (600-800 palavras)\n'
+  + '4. Momento Iluminado: narrativa de virada, terceira pessoa, 120-160 palavras\n'
+  + '5. Movimentos que Iluminam: **1.** **2.** **3.** perguntas em negrito\n'
+  + '6. Fechamento: resume, frase forte em negrito, prepara proximo capitulo (100-150 palavras)\n\n'
+  + 'ENCERRAMENTO: Cap 27 deve deixar a mulher se sentindo extraordinaria sem dizer isso.\n\n'
+  + 'REFERENCIAS: Apenas obras REAIS. Autores: Lotta Borg Skoglund, Sarah Hendrickx, Ellen Littman, Russell Barkley, Simon Baron-Cohen, DSM-5-TR, Tania Marshall, Patricia Quinn, Tony Attwood, Ned Hallowell, Ana Beatriz Barbosa Silva.\n'
+  + '5 a 7 por capitulo. Formato: SOBRENOME, Nome. Titulo. Cidade: Editora, Ano.\n'
+  + 'Ao final EXATAMENTE:\n'
+  + '---REFS---\n1. ...\n---FIMREFS---\n'
+  + '---RESUMO---\n[2-3 linhas do conteudo para guiar o proximo]\n---FIMRESUMO---\n'
   + 'NAO inventar referencias.';
 
 function buildPrompt(p, notas, ctx) {
@@ -632,25 +592,17 @@ function buildPrompt(p, notas, ctx) {
     'citacao': 'Crie a CITACAO DE ABERTURA do livro. Uma frase unica, autoria da Dra. Camila Lino, que capture tudo. Gere 3 opcoes e indique a recomendada.',
     'agradecimentos': 'Escreva os AGRADECIMENTOS. Tom pessoal e autentico. Mencione: pacientes anonimas, Douglas (parceiro), fe crista, Dr. Leonardo Maranho, a propria jornada de diagnostico tardio aos 35 anos. 400-500 palavras.',
     'prefacio': 'Crie espaco reservado para PREFACIO com nota editorial e modelo para o prefaciador. Inclua versao preliminar de 300 palavras como referencia.',
-    'introducao': 'Escreva a INTRODUCAO. Porta de entrada para leitora e profissional. Cena universal de abertura, apresenta o livro e jornada das 8 partes, termina com convite — nao promessa de cura, mas de companhia. 700-900 palavras.',
+    'introducao': 'Escreva a INTRODUCAO. Porta de entrada para leitora e profissional. Cena universal de abertura, apresenta o livro e jornada das 8 partes, termina com convite nao promessa de cura mas de companhia. 700-900 palavras.',
     'refs': 'Compile as REFERENCIAS GERAIS organizadas por tema: TDAH feminino, Autismo feminino, Altas Habilidades, Neurodivergencia e genero, Manuais diagnosticos. Apenas obras REAIS. Formato ABNT.'
   };
-  var base = ctx ? ctx + '
-
-' : '';
-  if (esp[p.id]) return base + esp[p.id] + (notas ? '
-
-NOTAS DA AUTORA: ' + notas : '');
+  var base = ctx ? ctx + '\n\n' : '';
+  if (esp[p.id]) return base + esp[p.id] + (notas ? '\n\nNOTAS DA AUTORA: ' + notas : '');
   var num = p.id.replace('c','');
-  return base + 'Escreva o CAPITULO ' + num + ': "' + p.tit + '"
-Subtopicos: ' + p.desc + '
-Parte: ' + p.sec
-    + (notas ? '
-NOTAS DA AUTORA: ' + notas : '')
-    + '
-
-Este capitulo faz parte de uma jornada. Conecte ao que veio antes. A frase celebre deve ser de autor real relacionado ao tema. Extensao: 1.200 a 1.500 palavras.';
+  return base + 'Escreva o CAPITULO ' + num + ': "' + p.tit + '"\nSubtopicos: ' + p.desc + '\nParte: ' + p.sec
+    + (notas ? '\nNOTAS DA AUTORA: ' + notas : '')
+    + '\n\nEste capitulo faz parte de uma jornada. Conecte ao que veio antes. A frase celebre deve ser de autor real relacionado ao tema. Extensao: 1.200 a 1.500 palavras.';
 }
+
 
 // INIT
 initKey();
