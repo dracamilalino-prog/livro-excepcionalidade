@@ -284,23 +284,36 @@ let API_KEY = '';
 
 // ========== API KEY ==========
 function initApiKey() {
-  const saved = localStorage.getItem('cl_ef_key');
-  if (saved) { API_KEY = saved; badge(true); }
-  else if (!window.location.hostname.includes('claude.ai')) abrirModal();
+  // Tenta as duas chaves possiveis (nova e antiga)
+  const saved = localStorage.getItem('cl_ef_key') || localStorage.getItem('cl_api_key');
+  if (saved) { API_KEY = saved; localStorage.setItem('cl_ef_key', saved); badge(true); }
+  else { badge(false); }
 }
 function abrirModal() {
-  document.getElementById('modalOverlay').classList.remove('hidden');
-  const s = localStorage.getItem('cl_ef_key');
+  const overlay = document.getElementById('modalOverlay');
+  overlay.style.display = 'flex';
+  overlay.classList.remove('hidden');
+  const s = localStorage.getItem('cl_ef_key') || localStorage.getItem('cl_api_key');
   if (s) document.getElementById('apiKeyInput').value = s;
-  setTimeout(() => document.getElementById('apiKeyInput').focus(), 100);
+  setTimeout(() => document.getElementById('apiKeyInput').focus(), 150);
 }
-function fecharModal() { document.getElementById('modalOverlay').classList.add('hidden'); }
+function fecharModal() {
+  const overlay = document.getElementById('modalOverlay');
+  overlay.style.display = 'none';
+  overlay.classList.add('hidden');
+}
 function salvarApiKey() {
   const v = document.getElementById('apiKeyInput').value.trim();
   if (!v.startsWith('sk-ant-')) {
-    document.getElementById('apiKeyInput').style.borderColor = '#e74c3c'; return;
+    document.getElementById('apiKeyInput').style.borderColor = '#e74c3c';
+    document.getElementById('apiKeyInput').placeholder = 'Deve comecar com sk-ant-...';
+    return;
   }
-  API_KEY = v; localStorage.setItem('cl_ef_key', v); badge(true); fecharModal();
+  API_KEY = v;
+  localStorage.setItem('cl_ef_key', v);
+  localStorage.setItem('cl_api_key', v);
+  badge(true);
+  fecharModal();
 }
 function badge(ok) {
   document.getElementById('apiDot').className = 'dot' + (ok ? ' ok' : '');
