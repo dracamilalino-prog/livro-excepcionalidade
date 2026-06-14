@@ -3,910 +3,657 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Excepcionalidades Femininas — Plataforma Editorial</title>
-<style>
-  :root {
-    --roxo: #3d1a6e; --roxo-medio: #5c2d91; --roxo-claro: #8a5bbf;
-    --dourado: #c9a84c; --dourado-claro: #e8c96e;
-    --bg: #0f0718; --bg2: #1a0d2e; --bg3: #241040;
-    --texto: #f0e8ff; --texto2: #c8b8e8; --borda: #3d2060;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--texto); font-family: Georgia, serif; min-height: 100vh; }
-
-  .header {
-    background: linear-gradient(135deg, var(--bg2), var(--roxo));
-    border-bottom: 2px solid var(--dourado);
-    padding: 16px 24px; display: flex; align-items: center; gap: 16px;
-  }
-  .header-logo {
-    width: 48px; height: 48px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--dourado), var(--dourado-claro));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; font-weight: bold; color: var(--bg); flex-shrink: 0;
-  }
-  .header-info h1 { font-size: 1rem; color: var(--dourado); letter-spacing: 1px; }
-  .header-info p { font-size: 0.75rem; color: var(--texto2); margin-top: 2px; }
-  .header-crm { margin-left: auto; font-size: 0.7rem; color: var(--dourado-claro); opacity: 0.8; text-align: right; }
-  .api-badge {
-    display: flex; align-items: center; gap: 8px; padding: 5px 12px;
-    background: var(--bg3); border: 1px solid var(--borda); border-radius: 20px;
-    font-size: 0.7rem; color: var(--texto2); cursor: pointer; transition: all 0.2s;
-  }
-  .api-badge:hover { border-color: var(--dourado); color: var(--dourado); }
-  .api-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #e74c3c; }
-  .api-badge .dot.ok { background: #2ecc71; }
-
-  .container { display: flex; height: calc(100vh - 76px); }
-
-  .sidebar {
-    width: 270px; flex-shrink: 0; background: var(--bg2);
-    border-right: 1px solid var(--borda); overflow-y: auto; display: flex; flex-direction: column;
-  }
-  .sidebar-top { padding: 12px; border-bottom: 1px solid var(--borda); display: flex; flex-direction: column; gap: 8px; }
-  .btn-gerar-tudo {
-    width: 100%; padding: 10px;
-    background: linear-gradient(135deg, var(--dourado), var(--dourado-claro));
-    color: var(--bg); border: none; border-radius: 7px;
-    font-size: 0.82rem; font-weight: bold; cursor: pointer; transition: opacity 0.2s;
-  }
-  .btn-gerar-tudo:hover { opacity: 0.9; }
-  .btn-gerar-tudo.parar { background: linear-gradient(135deg, #c0392b, #e74c3c); color: white; }
-  .progresso { display: none; }
-  .progresso-bar { height: 3px; background: var(--borda); border-radius: 2px; overflow: hidden; margin-top: 8px; }
-  .progresso-fill { height: 100%; background: var(--dourado); transition: width 0.5s; border-radius: 2px; }
-  .progresso-texto { font-size: 0.65rem; color: var(--texto2); margin-top: 4px; text-align: center; }
-
-  .secao-label {
-    padding: 10px 14px 3px;
-    font-size: 0.6rem; font-weight: bold; letter-spacing: 1.5px;
-    color: var(--dourado); text-transform: uppercase; opacity: 0.7;
-  }
-  .item-livro {
-    padding: 8px 14px; cursor: pointer;
-    display: flex; align-items: center; gap: 9px;
-    border-left: 3px solid transparent; transition: all 0.15s;
-    font-size: 0.78rem; color: var(--texto2);
-  }
-  .item-livro:hover { background: var(--bg3); color: var(--texto); }
-  .item-livro.ativo { border-left-color: var(--dourado); background: var(--bg3); color: var(--dourado); }
-  .item-num {
-    width: 22px; height: 22px; border-radius: 50%;
-    background: var(--bg3); border: 1px solid var(--borda);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.6rem; flex-shrink: 0; font-family: monospace;
-  }
-  .item-livro.ativo .item-num { background: var(--dourado); color: var(--bg); border-color: var(--dourado); }
-  .item-livro.feito .item-num { background: #1a5c2a; border-color: #2ecc71; color: #2ecc71; }
-  .item-livro.gerando .item-num { background: var(--roxo); border-color: var(--roxo-claro); animation: pulse 1.5s infinite; }
-  .item-titulo { flex: 1; line-height: 1.3; }
-
-  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-  .editor-area { flex: 1; overflow-y: auto; padding: 24px 32px; }
-
-  .peca-header { margin-bottom: 18px; }
-  .peca-header .secao { font-size: 0.68rem; color: var(--dourado); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
-  .peca-header h2 { font-size: 1.5rem; color: var(--texto); font-weight: normal; line-height: 1.3; }
-  .peca-header .desc { font-size: 0.76rem; color: var(--texto2); margin-top: 5px; font-style: italic; }
-
-  .notas-area {
-    background: var(--bg2); border: 1px solid var(--borda);
-    border-radius: 8px; padding: 12px; margin-bottom: 16px;
-  }
-  .notas-area label { font-size: 0.72rem; color: var(--dourado); letter-spacing: 1px; display: block; margin-bottom: 6px; }
-  .notas-area textarea {
-    width: 100%; background: var(--bg3); border: 1px solid var(--borda);
-    color: var(--texto); font-size: 0.8rem; padding: 9px; border-radius: 6px;
-    resize: vertical; min-height: 60px; font-family: inherit; line-height: 1.5;
-  }
-  .notas-area textarea:focus { outline: none; border-color: var(--roxo-claro); }
-
-  .acoes { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-  .btn {
-    padding: 9px 18px; border-radius: 7px; border: none; cursor: pointer;
-    font-size: 0.8rem; font-weight: bold; transition: all 0.15s;
-  }
-  .btn-primario { background: var(--roxo-medio); color: white; }
-  .btn-primario:hover { background: var(--roxo-claro); }
-  .btn-download { background: linear-gradient(135deg, #1a5c2a, #27ae60); color: white; }
-  .btn-download:hover { opacity: 0.9; }
-  .btn-zip { background: linear-gradient(135deg, #1a3a5c, #2980b9); color: white; }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .conteudo-box {
-    background: var(--bg2); border: 1px solid var(--borda);
-    border-radius: 10px; padding: 28px 32px;
-    line-height: 1.85; font-size: 0.9rem; min-height: 220px;
-  }
-  .conteudo-box.vazio {
-    display: flex; align-items: center; justify-content: center;
-    color: var(--texto2); font-style: italic; min-height: 280px; text-align: center;
-  }
-  .conteudo-box p { margin-bottom: 14px; }
-  .conteudo-box strong { color: var(--dourado-claro); }
-  .conteudo-box em { color: var(--texto2); }
-  .conteudo-box h3 { color: var(--dourado); margin: 22px 0 10px; font-size: 0.82rem; letter-spacing: 1px; text-transform: uppercase; }
-  .conteudo-box blockquote {
-    border-left: 3px solid var(--dourado); margin: 16px 0;
-    padding: 10px 16px; background: var(--bg3); border-radius: 0 6px 6px 0;
-    font-style: italic; color: var(--texto2); font-size: 0.85rem;
-  }
-  .conteudo-box .refs { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--borda); }
-  .conteudo-box .refs h3 { color: var(--dourado); }
-  .conteudo-box .refs ol { padding-left: 18px; }
-  .conteudo-box .refs li { margin-bottom: 7px; font-size: 0.76rem; color: var(--texto2); line-height: 1.6; }
-
-  .status-bar {
-    padding: 7px 32px; background: var(--bg2); border-top: 1px solid var(--borda);
-    font-size: 0.7rem; color: var(--texto2); display: flex; align-items: center; gap: 10px;
-  }
-  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--borda); }
-  .status-dot.ativo { background: var(--dourado); animation: pulse 1.5s infinite; }
-  .status-dot.ok { background: #2ecc71; }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-  .welcome { text-align: center; padding: 60px 24px; }
-  .welcome h2 { color: var(--dourado); font-size: 1.3rem; margin-bottom: 10px; }
-  .welcome p { color: var(--texto2); font-size: 0.83rem; line-height: 1.7; max-width: 460px; margin: 0 auto; }
-
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-    display: flex; align-items: center; justify-content: center; z-index: 1000;
-  }
-  .modal-overlay.hidden { display: none; }
-  .modal {
-    background: var(--bg2); border: 1px solid var(--dourado);
-    border-radius: 12px; padding: 32px 36px; max-width: 460px; width: 90%;
-  }
-  .modal h2 { color: var(--dourado); font-size: 1.1rem; margin-bottom: 8px; }
-  .modal p { color: var(--texto2); font-size: 0.8rem; line-height: 1.7; margin-bottom: 16px; }
-  .modal input {
-    width: 100%; padding: 11px 12px; background: var(--bg3); border: 1px solid var(--borda);
-    color: var(--texto); font-size: 0.83rem; border-radius: 7px; font-family: monospace; margin-bottom: 6px;
-  }
-  .modal input:focus { outline: none; border-color: var(--dourado); }
-  .modal-hint { font-size: 0.7rem; color: var(--texto2); margin-bottom: 18px; opacity: 0.7; }
-  .modal-hint a { color: var(--dourado); text-decoration: none; }
-  .modal-actions { display: flex; gap: 8px; }
-  .modal-actions .btn { flex: 1; padding: 11px; }
-
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--borda); border-radius: 2px; }
-</style>
+<title>Excepcionalidades Femininas</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root {
+  --roxo:#3d1a6e; --roxo-m:#5c2d91; --roxo-c:#8a5bbf;
+  --ouro:#c9a84c; --ouro-c:#e8c96e;
+  --bg:#0f0718; --bg2:#1a0d2e; --bg3:#241040;
+  --txt:#f0e8ff; --txt2:#c8b8e8; --borda:#3d2060;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:Georgia,serif;min-height:100vh}
+
+.header{background:linear-gradient(135deg,var(--bg2),var(--roxo));border-bottom:2px solid var(--ouro);padding:14px 20px;display:flex;align-items:center;gap:14px}
+.logo{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--ouro),var(--ouro-c));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;color:var(--bg);flex-shrink:0}
+.h-info h1{font-size:0.95rem;color:var(--ouro);letter-spacing:1px}
+.h-info p{font-size:0.72rem;color:var(--txt2);margin-top:2px}
+.h-crm{margin-left:auto;font-size:0.68rem;color:var(--ouro-c);opacity:.8;text-align:right}
+.api-btn{display:flex;align-items:center;gap:7px;padding:5px 11px;background:var(--bg3);border:1px solid var(--borda);border-radius:20px;font-size:0.68rem;color:var(--txt2);cursor:pointer;transition:all .2s;user-select:none}
+.api-btn:hover{border-color:var(--ouro);color:var(--ouro)}
+.dot{width:6px;height:6px;border-radius:50%;background:#e74c3c}
+.dot.ok{background:#2ecc71}
+
+.wrap{display:flex;height:calc(100vh - 72px)}
+
+.side{width:260px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--borda);overflow-y:auto;display:flex;flex-direction:column}
+.side-top{padding:10px;border-bottom:1px solid var(--borda);display:flex;flex-direction:column;gap:6px}
+.sbtn{width:100%;padding:9px;border:none;border-radius:7px;font-size:0.78rem;font-weight:bold;cursor:pointer;transition:opacity .2s}
+.sbtn-ouro{background:linear-gradient(135deg,var(--ouro),var(--ouro-c));color:var(--bg)}
+.sbtn-azul{background:linear-gradient(135deg,#1a3a5c,#2980b9);color:white}
+.sbtn-verde{background:linear-gradient(135deg,#1a5c2a,#27ae60);color:white}
+.sbtn:hover{opacity:.88}
+.sbtn.parar{background:linear-gradient(135deg,#c0392b,#e74c3c);color:white}
+.prog{display:none;padding:6px 0 0}
+.prog-bar{height:3px;background:var(--borda);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--ouro);transition:width .4s;border-radius:2px}
+.prog-txt{font-size:0.62rem;color:var(--txt2);margin-top:3px;text-align:center}
+
+.sec-lbl{padding:9px 13px 3px;font-size:0.58rem;font-weight:bold;letter-spacing:1.5px;color:var(--ouro);text-transform:uppercase;opacity:.7}
+.item{padding:8px 13px;cursor:pointer;display:flex;align-items:center;gap:8px;border-left:3px solid transparent;transition:all .15s;font-size:0.76rem;color:var(--txt2)}
+.item:hover{background:var(--bg3);color:var(--txt)}
+.item.ativo{border-left-color:var(--ouro);background:var(--bg3);color:var(--ouro)}
+.item.feito{color:var(--txt)}
+.item-n{width:21px;height:21px;border-radius:50%;background:var(--bg3);border:1px solid var(--borda);display:flex;align-items:center;justify-content:center;font-size:0.58rem;flex-shrink:0;font-family:monospace}
+.item.ativo .item-n{background:var(--ouro);color:var(--bg);border-color:var(--ouro)}
+.item.feito .item-n{background:#1a5c2a;border-color:#2ecc71;color:#2ecc71}
+.item.gerando .item-n{background:var(--roxo);border-color:var(--roxo-c)}
+.item-t{flex:1;line-height:1.3}
+
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.editor{flex:1;overflow-y:auto;padding:22px 28px}
+
+.p-header{margin-bottom:16px}
+.p-secao{font-size:0.65rem;color:var(--ouro);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.p-titulo{font-size:1.4rem;color:var(--txt);font-weight:normal;line-height:1.3}
+.p-desc{font-size:0.73rem;color:var(--txt2);margin-top:4px;font-style:italic}
+
+.notas{background:var(--bg2);border:1px solid var(--borda);border-radius:7px;padding:11px;margin-bottom:14px}
+.notas label{font-size:0.7rem;color:var(--ouro);letter-spacing:1px;display:block;margin-bottom:5px}
+.notas textarea{width:100%;background:var(--bg3);border:1px solid var(--borda);color:var(--txt);font-size:0.78rem;padding:8px;border-radius:5px;resize:vertical;min-height:55px;font-family:inherit;line-height:1.5}
+.notas textarea:focus{outline:none;border-color:var(--roxo-c)}
+
+.acoes{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.btn{padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-size:0.78rem;font-weight:bold;transition:all .15s}
+.btn-r{background:var(--roxo-m);color:white}
+.btn-r:hover{background:var(--roxo-c)}
+.btn-g{background:linear-gradient(135deg,#1a5c2a,#27ae60);color:white}
+.btn-g:hover{opacity:.9}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+.cbox{background:var(--bg2);border:1px solid var(--borda);border-radius:9px;padding:24px 28px;line-height:1.85;font-size:0.88rem;min-height:200px}
+.cbox.vazio{display:flex;align-items:center;justify-content:center;color:var(--txt2);font-style:italic;min-height:260px;text-align:center}
+.cbox p{margin-bottom:13px}
+.cbox strong{color:var(--ouro-c)}
+.cbox em{color:var(--txt2)}
+.cbox h3{color:var(--ouro);margin:20px 0 9px;font-size:0.8rem;letter-spacing:1px;text-transform:uppercase}
+.cbox blockquote{border-left:3px solid var(--ouro);margin:14px 0;padding:9px 14px;background:var(--bg3);border-radius:0 5px 5px 0;font-style:italic;color:var(--txt2);font-size:0.83rem}
+.cbox .refs{margin-top:26px;padding-top:16px;border-top:1px solid var(--borda)}
+.cbox .refs h3{color:var(--ouro)}
+.cbox .refs ol{padding-left:16px}
+.cbox .refs li{margin-bottom:6px;font-size:0.74rem;color:var(--txt2);line-height:1.6}
+
+.sbar{padding:6px 28px;background:var(--bg2);border-top:1px solid var(--borda);font-size:0.68rem;color:var(--txt2);display:flex;align-items:center;gap:9px}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--borda)}
+.sdot.a{background:var(--ouro);animation:pulse 1.5s infinite}
+.sdot.ok{background:#2ecc71}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.87);display:none;align-items:center;justify-content:center;z-index:999}
+.modal-bg.aberto{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--ouro);border-radius:12px;padding:30px 34px;max-width:440px;width:90%}
+.modal h2{color:var(--ouro);font-size:1.05rem;margin-bottom:7px}
+.modal p{color:var(--txt2);font-size:0.78rem;line-height:1.7;margin-bottom:14px}
+.modal input{width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--borda);color:var(--txt);font-size:0.8rem;border-radius:6px;font-family:monospace;margin-bottom:5px}
+.modal input:focus{outline:none;border-color:var(--ouro)}
+.modal-hint{font-size:0.68rem;color:var(--txt2);margin-bottom:16px;opacity:.7}
+.modal-hint a{color:var(--ouro);text-decoration:none}
+.modal-acoes{display:flex;gap:8px}
+.modal-acoes .btn{flex:1;padding:10px}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--borda);border-radius:2px}
+</style>
 </head>
 <body>
 
-<div class="modal-overlay hidden" id="modalOverlay">
+<div class="modal-bg" id="modalBg">
   <div class="modal">
-    <h2>✦ API Key da Anthropic</h2>
-    <p>Cole sua API Key para usar a plataforma no Opera ou qualquer navegador.</p>
-    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off"/>
+    <h2>Configurar API Key</h2>
+    <p>Cole sua API Key da Anthropic para usar a plataforma no Opera ou qualquer navegador.</p>
+    <input type="password" id="keyInput" placeholder="sk-ant-api03-..."/>
     <div class="modal-hint">Obtenha em <a href="https://console.anthropic.com/keys" target="_blank">console.anthropic.com/keys</a></div>
-    <div class="modal-actions">
-      <button class="btn" style="background:transparent;color:var(--dourado);border:1px solid var(--dourado)" onclick="fecharModal()">Cancelar</button>
-      <button class="btn btn-primario" onclick="salvarApiKey()">✦ Salvar</button>
+    <div class="modal-acoes">
+      <button class="btn" style="background:transparent;color:var(--ouro);border:1px solid var(--ouro)" onclick="fecharModal()">Cancelar</button>
+      <button class="btn btn-r" onclick="salvarKey()">Salvar</button>
     </div>
   </div>
 </div>
 
 <div class="header">
-  <div class="header-logo">CL</div>
-  <div class="header-info">
+  <div class="logo">CL</div>
+  <div class="h-info">
     <h1>EXCEPCIONALIDADES FEMININAS</h1>
     <p>Plataforma Editorial · TDAH · Autismo · Altas Habilidades</p>
   </div>
-  <div class="header-crm">Dra. Camila Lino<br>CRM 274280 SP</div>
-  <div class="api-badge" id="apiBadge" onclick="abrirModal()">
+  <div class="h-crm">Dra. Camila Lino<br>CRM 274280 SP</div>
+  <div class="api-btn" onclick="abrirModal()">
     <div class="dot" id="apiDot"></div>
     <span id="apiLabel">API Key</span>
   </div>
 </div>
 
-<div class="container">
-  <div class="sidebar">
-    <div class="sidebar-top">
-      <button class="btn-gerar-tudo" id="btnGerarTudo" onclick="toggleGerarTudo()">✦ Gerar livro completo</button>
-      <button class="btn-gerar-tudo" style="background:linear-gradient(135deg,#1a3a5c,#2980b9);margin-top:4px" onclick="baixarZip()">⬇ Baixar ZIP completo</button>
-      <button class="btn-gerar-tudo" style="background:linear-gradient(135deg,#1a5c2a,#27ae60);margin-top:4px" onclick="baixarDocUnico()">📄 Baixar livro completo (.doc)</button>
-      <div class="progresso" id="progressoArea">
-        <div class="progresso-bar"><div class="progresso-fill" id="progressoFill" style="width:0%"></div></div>
-        <div class="progresso-texto" id="progressoTexto">0 / 31 pecas</div>
+<div class="wrap">
+  <div class="side">
+    <div class="side-top">
+      <button class="sbtn sbtn-ouro" id="btnTudo" onclick="gerarTudo()">✦ Gerar livro completo</button>
+      <button class="sbtn sbtn-azul" onclick="baixarZip()">⬇ Baixar ZIP (todos)</button>
+      <button class="sbtn sbtn-verde" onclick="baixarUnico()">📄 Baixar livro completo (.doc)</button>
+      <div class="prog" id="progArea">
+        <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+        <div class="prog-txt" id="progTxt">0 / 31</div>
       </div>
     </div>
-    <div id="sidebarLista"></div>
+    <div id="lista"></div>
   </div>
 
   <div class="main">
-    <div class="editor-area" id="editorArea">
-      <div class="welcome">
-        <h2>✦ Excepcionalidades Femininas</h2>
-        <p>Selecione uma peça do livro na barra lateral para gerar. O livro é gerado em ordem — cada peça conhece o que veio antes.</p>
-        <br>
-        <p style="font-size:0.73rem;color:var(--dourado);opacity:0.7">Prefácio · Agradecimentos · Introdução · 27 Capítulos · Referências</p>
+    <div class="editor" id="editor">
+      <div style="text-align:center;padding:60px 20px">
+        <div style="color:var(--ouro);font-size:1.3rem;margin-bottom:10px">✦ Excepcionalidades Femininas</div>
+        <div style="color:var(--txt2);font-size:0.82rem;line-height:1.7;max-width:440px;margin:0 auto">Selecione uma peca do livro na barra lateral. Gere em ordem — cada peca conhece o que veio antes.</div>
       </div>
     </div>
-    <div class="status-bar">
-      <div class="status-dot" id="statusDot"></div>
-      <span id="statusTexto">Pronta para gerar</span>
+    <div class="sbar">
+      <div class="sdot" id="sdot"></div>
+      <span id="stxt">Pronta</span>
     </div>
   </div>
 </div>
 
 <script>
-// ========== ESTRUTURA DO LIVRO ==========
-const PECAS = [
-  { id: 'citacao',       secao: 'ABERTURA',   titulo: 'Citação de abertura', desc: 'Frase que abre o livro antes do sumário' },
-  { id: 'agradecimentos',secao: 'ABERTURA',   titulo: 'Agradecimentos', desc: 'Agradecimentos da autora' },
-  { id: 'prefacio',      secao: 'ABERTURA',   titulo: 'Prefácio (em aberto)', desc: 'Espaço reservado — será assinado posteriormente' },
-  { id: 'introducao',    secao: 'ABERTURA',   titulo: 'Introdução', desc: 'A jornada que o leitor vai fazer' },
-  { id: 'c1',  secao: 'PARTE I — O Invisível que Dói',           titulo: 'Cap. 1 — A mulher que aprendeu a desaparecer',              desc: 'Mascaramento · Performance · Exaustão invisível' },
-  { id: 'c2',  secao: 'PARTE I — O Invisível que Dói',           titulo: 'Cap. 2 — Quando o diagnóstico chega tarde demais',          desc: 'Diagnóstico tardio · Impacto emocional · Reescrita da história' },
-  { id: 'c3',  secao: 'PARTE I — O Invisível que Dói',           titulo: 'Cap. 3 — O peso de parecer normal',                        desc: 'Comparação social · Autocobrança · O mito da mulher que dá conta de tudo' },
-  { id: 'c4',  secao: 'PARTE II — Entendendo o TDAH Feminino',   titulo: 'Cap. 4 — TDAH: a versão que ninguém te contou',            desc: 'Histórico · Viés de gênero · Subtipos' },
-  { id: 'c5',  secao: 'PARTE II — Entendendo o TDAH Feminino',   titulo: 'Cap. 5 — Dentro da mente que acelera',                    desc: 'Funções executivas · Memória de trabalho · Regulação emocional' },
-  { id: 'c6',  secao: 'PARTE II — Entendendo o TDAH Feminino',   titulo: 'Cap. 6 — O corpo que não para — ou que não consegue começar', desc: 'Hiperatividade interna · Paralisia por análise · Procrastinação' },
-  { id: 'c7',  secao: 'PARTE II — Entendendo o TDAH Feminino',   titulo: 'Cap. 7 — TDAH e relacionamentos: o caos que ninguém vê',  desc: 'Vínculos · Hiperfoco afetivo · Conflito e ruptura' },
-  { id: 'c8',  secao: 'PARTE II — Entendendo o TDAH Feminino',   titulo: 'Cap. 8 — TDAH na escola, no trabalho, na vida adulta',    desc: 'Desempenho acadêmico · Carreira · Autoestima profissional' },
-  { id: 'c9',  secao: 'PARTE III — Autismo Feminino',            titulo: 'Cap. 9 — Autismo não tem cara de menino',                 desc: 'Fenótipo feminino · Mascaramento social · Diagnóstico perdido' },
-  { id: 'c10', secao: 'PARTE III — Autismo Feminino',            titulo: 'Cap. 10 — Interações sociais: o esforço que drena',       desc: 'Cognição social · Scripts · Esgotamento pós-social' },
-  { id: 'c11', secao: 'PARTE III — Autismo Feminino',            titulo: 'Cap. 11 — Sensorialidade: o mundo em volume máximo',      desc: 'Processamento sensorial · Hiper e hipossensibilidade' },
-  { id: 'c12', secao: 'PARTE III — Autismo Feminino',            titulo: 'Cap. 12 — Interesses intensos como linguagem de amor',    desc: 'Interesses restritos · Identidade · Superpoderes disfarçados' },
-  { id: 'c13', secao: 'PARTE III — Autismo Feminino',            titulo: 'Cap. 13 — Autismo e saúde mental: a comorbidade esquecida', desc: 'Ansiedade · Depressão · Burnout autístico' },
-  { id: 'c14', secao: 'PARTE IV — Altas Habilidades',            titulo: 'Cap. 14 — Ser muito não é o mesmo que ser bem',           desc: 'Superdotação · Definições · Mitos' },
-  { id: 'c15', secao: 'PARTE IV — Altas Habilidades',            titulo: 'Cap. 15 — A intensidade que assusta',                    desc: 'Superexcitabilidades de Dabrowski · Emoções amplificadas' },
-  { id: 'c16', secao: 'PARTE IV — Altas Habilidades',            titulo: 'Cap. 16 — Altas habilidades em mulheres: duplamente invisível', desc: 'Subidentificação feminina · Perfeccionismo · Síndrome da impostora' },
-  { id: 'c17', secao: 'PARTE V — Quando Tudo se Mistura',        titulo: 'Cap. 17 — Dupla excepcionalidade: brilho e sombra',      desc: 'TDAH + altas habilidades · Autismo + altas habilidades' },
-  { id: 'c18', secao: 'PARTE V — Quando Tudo se Mistura',        titulo: 'Cap. 18 — A tríade que ninguém nomeia',                  desc: 'TDAH + Autismo + Altas habilidades · Perfil clínico' },
-  { id: 'c19', secao: 'PARTE VI — O Corpo que Carrega Tudo',     titulo: 'Cap. 19 — Hormônios, ciclos e neurodivergência',         desc: 'Ciclo menstrual · Gestação · Menopausa' },
-  { id: 'c20', secao: 'PARTE VI — O Corpo que Carrega Tudo',     titulo: 'Cap. 20 — O sono que não restaura',                     desc: 'Insônia · Hipersonia · Ritmo circadiano' },
-  { id: 'c21', secao: 'PARTE VI — O Corpo que Carrega Tudo',     titulo: 'Cap. 21 — Alimentação, corpo e controle',               desc: 'Comer emocional · Restrição · ARFID · Imagem corporal' },
-  { id: 'c22', secao: 'PARTE VII — Reconhecimento e Recomeço',   titulo: 'Cap. 22 — O diagnóstico como libertação',               desc: 'Processo diagnóstico · Luto e alívio' },
-  { id: 'c23', secao: 'PARTE VII — Reconhecimento e Recomeço',   titulo: 'Cap. 23 — Aprender a se conhecer de novo',              desc: 'Identidade neurodivergente · Autocompaixão' },
-  { id: 'c24', secao: 'PARTE VII — Reconhecimento e Recomeço',   titulo: 'Cap. 24 — Você nunca foi "demais"',                     desc: 'A mulher inteira · Intensidade como potência' },
-  { id: 'c25', secao: 'PARTE VIII — Caminho de Cuidado',         titulo: 'Cap. 25 — O tratamento além dos estereótipos',          desc: 'Psicoterapia · Rotina · Sono · Rede de apoio' },
-  { id: 'c26', secao: 'PARTE VIII — Caminho de Cuidado',         titulo: 'Cap. 26 — Medicação sem tabu',                          desc: 'Quando pode ajudar · Mitos · Cuidado ético' },
-  { id: 'c27', secao: 'PARTE VIII — Caminho de Cuidado',         titulo: 'Cap. 27 — Construindo uma vida sustentável',            desc: 'Limites · Funcionalidade real · A mulher por trás da performance' },
-  { id: 'referencias',   secao: 'FECHAMENTO', titulo: 'Referências Gerais', desc: 'Bibliografia completa do livro' },
+var PECAS = [
+  {id:'citacao',       sec:'ABERTURA',                              tit:'Citacao de abertura',                              desc:'Frase que abre o livro'},
+  {id:'agradecimentos',sec:'ABERTURA',                             tit:'Agradecimentos',                                   desc:'Agradecimentos da autora'},
+  {id:'prefacio',      sec:'ABERTURA',                             tit:'Prefacio (em aberto)',                             desc:'Espaco reservado para prefaciador'},
+  {id:'introducao',    sec:'ABERTURA',                             tit:'Introducao',                                       desc:'A jornada que o leitor vai fazer'},
+  {id:'c1', sec:'PARTE I — O Invisivel que Doi',                   tit:'Cap. 1 — A mulher que aprendeu a desaparecer',     desc:'Mascaramento · Performance · Exaustao invisivel'},
+  {id:'c2', sec:'PARTE I — O Invisivel que Doi',                   tit:'Cap. 2 — Quando o diagnostico chega tarde demais', desc:'Diagnostico tardio · Impacto emocional'},
+  {id:'c3', sec:'PARTE I — O Invisivel que Doi',                   tit:'Cap. 3 — O peso de parecer normal',               desc:'Comparacao social · Autocobranca'},
+  {id:'c4', sec:'PARTE II — TDAH Feminino',                        tit:'Cap. 4 — TDAH: a versao que ninguem te contou',   desc:'Historico · Vies de genero · Subtipos'},
+  {id:'c5', sec:'PARTE II — TDAH Feminino',                        tit:'Cap. 5 — Dentro da mente que acelera',            desc:'Funcoes executivas · Memoria · Emocao'},
+  {id:'c6', sec:'PARTE II — TDAH Feminino',                        tit:'Cap. 6 — O corpo que nao para',                   desc:'Hiperatividade interna · Procrastinacao'},
+  {id:'c7', sec:'PARTE II — TDAH Feminino',                        tit:'Cap. 7 — TDAH e relacionamentos',                 desc:'Vinculos · Hiperfoco afetivo · Ruptura'},
+  {id:'c8', sec:'PARTE II — TDAH Feminino',                        tit:'Cap. 8 — TDAH na escola, trabalho e vida adulta', desc:'Desempenho · Carreira · Autoestima'},
+  {id:'c9', sec:'PARTE III — Autismo Feminino',                    tit:'Cap. 9 — Autismo nao tem cara de menino',         desc:'Fenotipo feminino · Mascaramento'},
+  {id:'c10',sec:'PARTE III — Autismo Feminino',                    tit:'Cap. 10 — Interacoes sociais: o esforco que drena',desc:'Cognicao social · Esgotamento'},
+  {id:'c11',sec:'PARTE III — Autismo Feminino',                    tit:'Cap. 11 — Sensorialidade: o mundo em volume maximo',desc:'Processamento sensorial'},
+  {id:'c12',sec:'PARTE III — Autismo Feminino',                    tit:'Cap. 12 — Interesses intensos como linguagem de amor',desc:'Interesses restritos · Identidade'},
+  {id:'c13',sec:'PARTE III — Autismo Feminino',                    tit:'Cap. 13 — Autismo e saude mental',                desc:'Ansiedade · Depressao · Burnout'},
+  {id:'c14',sec:'PARTE IV — Altas Habilidades',                    tit:'Cap. 14 — Ser muito nao e o mesmo que ser bem',   desc:'Superdotacao · Mitos'},
+  {id:'c15',sec:'PARTE IV — Altas Habilidades',                    tit:'Cap. 15 — A intensidade que assusta',             desc:'Superexcitabilidades · Emocoes amplificadas'},
+  {id:'c16',sec:'PARTE IV — Altas Habilidades',                    tit:'Cap. 16 — Altas habilidades em mulheres',         desc:'Subidentificacao · Perfeccionismo'},
+  {id:'c17',sec:'PARTE V — Quando Tudo se Mistura',                tit:'Cap. 17 — Dupla excepcionalidade: brilho e sombra',desc:'TDAH + altas habilidades'},
+  {id:'c18',sec:'PARTE V — Quando Tudo se Mistura',                tit:'Cap. 18 — A triade que ninguem nomeia',           desc:'TDAH + Autismo + Altas habilidades'},
+  {id:'c19',sec:'PARTE VI — O Corpo que Carrega Tudo',             tit:'Cap. 19 — Hormonios, ciclos e neurodivergencia',  desc:'Ciclo menstrual · Gestacao · Menopausa'},
+  {id:'c20',sec:'PARTE VI — O Corpo que Carrega Tudo',             tit:'Cap. 20 — O sono que nao restaura',               desc:'Insonia · Hipersonia · Ritmo circadiano'},
+  {id:'c21',sec:'PARTE VI — O Corpo que Carrega Tudo',             tit:'Cap. 21 — Alimentacao, corpo e controle',         desc:'Comer emocional · ARFID · Imagem corporal'},
+  {id:'c22',sec:'PARTE VII — Reconhecimento e Recomeco',           tit:'Cap. 22 — O diagnostico como libertacao',         desc:'Processo diagnostico · Luto e alivio'},
+  {id:'c23',sec:'PARTE VII — Reconhecimento e Recomeco',           tit:'Cap. 23 — Aprender a se conhecer de novo',        desc:'Identidade neurodivergente · Autocompassao'},
+  {id:'c24',sec:'PARTE VII — Reconhecimento e Recomeco',           tit:'Cap. 24 — Voce nunca foi "demais"',               desc:'A mulher inteira · Intensidade como potencia'},
+  {id:'c25',sec:'PARTE VIII — Caminho de Cuidado',                 tit:'Cap. 25 — O tratamento alem dos estereotipos',    desc:'Psicoterapia · Rotina · Rede de apoio'},
+  {id:'c26',sec:'PARTE VIII — Caminho de Cuidado',                 tit:'Cap. 26 — Medicacao sem tabu',                    desc:'Quando ajuda · Mitos · Cuidado etico'},
+  {id:'c27',sec:'PARTE VIII — Caminho de Cuidado',                 tit:'Cap. 27 — Construindo uma vida sustentavel',      desc:'Limites · Qualidade de vida · A mulher real'},
+  {id:'refs',sec:'FECHAMENTO',                                     tit:'Referencias Gerais',                              desc:'Bibliografia completa do livro'}
 ];
 
-// Estado
-const estado = {};
-PECAS.forEach(p => { estado[p.id] = { status: 'pendente', texto: '', refs: [], notas: '' }; });
-// Guarda resumos para contexto
-const resumos = {};
+var estado = {};
+PECAS.forEach(function(p){ estado[p.id] = {status:'pendente',texto:'',refs:[],notas:''}; });
+var resumos = {};
+var ativoId = null;
+var gerandoTudo = false;
+var pararGen = false;
+var API_KEY = '';
 
-let ativoId = null;
-let gerandoTudo = false;
-let pararGeracao = false;
-let API_KEY = '';
-
-// ========== API KEY ==========
-function initApiKey() {
-  // Tenta as duas chaves possiveis (nova e antiga)
-  const saved = localStorage.getItem('cl_ef_key') || localStorage.getItem('cl_api_key');
-  if (saved) { API_KEY = saved; localStorage.setItem('cl_ef_key', saved); badge(true); }
-  else { badge(false); }
+// ===== API KEY =====
+function initKey() {
+  var k = localStorage.getItem('ef_key') || localStorage.getItem('cl_api_key') || localStorage.getItem('cl_ef_key');
+  if (k) { API_KEY = k; localStorage.setItem('ef_key', k); setBadge(true); }
+  else { setBadge(false); }
 }
-function abrirModal() {
-  const overlay = document.getElementById('modalOverlay');
-  overlay.style.display = 'flex';
-  overlay.classList.remove('hidden');
-  const s = localStorage.getItem('cl_ef_key') || localStorage.getItem('cl_api_key');
-  if (s) document.getElementById('apiKeyInput').value = s;
-  setTimeout(() => document.getElementById('apiKeyInput').focus(), 150);
-}
-function fecharModal() {
-  const overlay = document.getElementById('modalOverlay');
-  overlay.style.display = 'none';
-  overlay.classList.add('hidden');
-}
-function salvarApiKey() {
-  const v = document.getElementById('apiKeyInput').value.trim();
-  if (!v.startsWith('sk-ant-')) {
-    document.getElementById('apiKeyInput').style.borderColor = '#e74c3c';
-    document.getElementById('apiKeyInput').placeholder = 'Deve comecar com sk-ant-...';
-    return;
-  }
+function abrirModal() { document.getElementById('modalBg').classList.add('aberto'); document.getElementById('keyInput').focus(); }
+function fecharModal() { document.getElementById('modalBg').classList.remove('aberto'); }
+function salvarKey() {
+  var v = document.getElementById('keyInput').value.trim();
+  if (!v.startsWith('sk-ant-')) { document.getElementById('keyInput').style.borderColor='#e74c3c'; return; }
   API_KEY = v;
-  localStorage.setItem('cl_ef_key', v);
+  localStorage.setItem('ef_key', v);
   localStorage.setItem('cl_api_key', v);
-  badge(true);
+  setBadge(true);
   fecharModal();
 }
-function badge(ok) {
+function setBadge(ok) {
   document.getElementById('apiDot').className = 'dot' + (ok ? ' ok' : '');
   document.getElementById('apiLabel').textContent = ok ? 'API ativa' : 'Configurar API';
 }
 
-// ========== SIDEBAR ==========
+// ===== SIDEBAR =====
 function buildSidebar() {
-  const lista = document.getElementById('sidebarLista');
+  var lista = document.getElementById('lista');
   lista.innerHTML = '';
-  let secaoAtual = '';
-  PECAS.forEach(p => {
-    if (p.secao !== secaoAtual) {
-      secaoAtual = p.secao;
-      const lbl = document.createElement('div');
-      lbl.className = 'secao-label';
-      lbl.textContent = p.secao;
+  var secAtual = '';
+  PECAS.forEach(function(p, i) {
+    if (p.sec !== secAtual) {
+      secAtual = p.sec;
+      var lbl = document.createElement('div');
+      lbl.className = 'sec-lbl';
+      lbl.textContent = p.sec;
       lista.appendChild(lbl);
     }
-    const item = document.createElement('div');
-    const st = estado[p.id].status;
-    item.className = 'item-livro' + (ativoId === p.id ? ' ativo' : '') + (st === 'feito' ? ' feito' : '') + (st === 'gerando' ? ' gerando' : '');
-    item.id = 'sb-' + p.id;
-    item.onclick = () => abrirPeca(p.id);
-    const idx = PECAS.indexOf(p) + 1;
-    item.innerHTML = `<div class="item-num">${st === 'feito' ? '✓' : idx}</div><div class="item-titulo">${p.titulo}</div>`;
+    var st = estado[p.id].status;
+    var item = document.createElement('div');
+    item.className = 'item' + (ativoId===p.id?' ativo':'') + (st==='feito'?' feito':'') + (st==='gerando'?' gerando':'');
+    item.id = 'it-' + p.id;
+    item.onclick = (function(id){ return function(){ abrirPeca(id); }; })(p.id);
+    var num = st==='feito' ? '✓' : (i+1);
+    item.innerHTML = '<div class="item-n">' + num + '</div><div class="item-t">' + p.tit + '</div>';
     lista.appendChild(item);
   });
 }
-function atualizarItem(id) {
-  const p = PECAS.find(x => x.id === id);
-  const st = estado[id].status;
-  const item = document.getElementById('sb-' + id);
-  if (!item) return;
-  const idx = PECAS.indexOf(p) + 1;
-  item.className = 'item-livro' + (ativoId === id ? ' ativo' : '') + (st === 'feito' ? ' feito' : '') + (st === 'gerando' ? ' gerando' : '');
-  item.querySelector('.item-num').textContent = st === 'feito' ? '✓' : idx;
+function updItem(id) {
+  var p = PECAS.find(function(x){ return x.id===id; });
+  var st = estado[id].status;
+  var el = document.getElementById('it-'+id);
+  if (!el) return;
+  var i = PECAS.indexOf(p);
+  var num = st==='feito' ? '✓' : (i+1);
+  el.className = 'item' + (ativoId===id?' ativo':'') + (st==='feito'?' feito':'') + (st==='gerando'?' gerando':'');
+  el.querySelector('.item-n').textContent = num;
 }
 
-// ========== ABRIR PEÇA ==========
+// ===== ABRIR =====
 function abrirPeca(id) {
   ativoId = id;
   buildSidebar();
   renderEditor(id);
-  document.getElementById('sb-' + id)?.scrollIntoView({ block: 'nearest' });
+  var el = document.getElementById('it-'+id);
+  if (el) el.scrollIntoView({block:'nearest'});
 }
 
 function renderEditor(id) {
-  const p = PECAS.find(x => x.id === id);
-  const st = estado[id];
-  const area = document.getElementById('editorArea');
-
-  const conteudoHTML = st.texto
-    ? `<div class="conteudo-box" id="conteudoBox">${formatarTexto(st.texto, st.refs)}</div>`
-    : `<div class="conteudo-box vazio" id="conteudoBox">${st.status === 'gerando' ? '<span>Gerando...</span>' : 'Clique em "Gerar" para começar.'}</div>`;
-
-  area.innerHTML = `
-    <div class="peca-header">
-      <div class="secao">${p.secao}</div>
-      <h2>${p.titulo}</h2>
-      <div class="desc">${p.desc}</div>
-    </div>
-    <div class="notas-area">
-      <label>✦ NOTAS (direcionamentos, casos clínicos, pontos específicos)</label>
-      <textarea id="notasInput" placeholder="Ex: mencionar o fenômeno do mascaramento tardio...">${st.notas}</textarea>
-    </div>
-    <div class="acoes">
-      <button class="btn btn-primario" id="btnGerar" onclick="gerarPeca('${id}')" ${st.status === 'gerando' ? 'disabled' : ''}>
-        ${st.status === 'feito' ? '↺ Regenerar' : '✦ Gerar'}
-      </button>
-      ${st.status === 'feito' ? `<button class="btn btn-download" onclick="baixarDoc('${id}')">⬇ Baixar .doc</button>` : ''}
-    </div>
-    ${conteudoHTML}
-  `;
+  var p = PECAS.find(function(x){ return x.id===id; });
+  var st = estado[id];
+  var area = document.getElementById('editor');
+  var conteudo = st.texto
+    ? '<div class="cbox" id="cbox">' + fmtTexto(st.texto, st.refs) + '</div>'
+    : '<div class="cbox vazio" id="cbox">Clique em "Gerar" para comecar.</div>';
+  area.innerHTML =
+    '<div class="p-header">'
+    + '<div class="p-secao">' + p.sec + '</div>'
+    + '<div class="p-titulo">' + p.tit + '</div>'
+    + '<div class="p-desc">' + p.desc + '</div>'
+    + '</div>'
+    + '<div class="notas"><label>Notas opcionais (casos clinicos, direcionamentos)</label>'
+    + '<textarea id="notasEl">' + st.notas + '</textarea></div>'
+    + '<div class="acoes">'
+    + '<button class="btn btn-r" id="btnGerar" onclick="gerarPeca('' + id + '')">'
+    + (st.status==='feito' ? 'Regenerar' : 'Gerar') + '</button>'
+    + (st.status==='feito' ? '<button class="btn btn-g" onclick="dlDoc('' + id + '')">Baixar .doc</button>' : '')
+    + '</div>'
+    + conteudo;
 }
 
-// ========== FORMATAR TEXTO ==========
-function formatarTexto(texto, refs) {
-  let html = texto
+// ===== FORMATAR =====
+function fmtTexto(texto, refs) {
+  var h = texto
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/^#{1,3}\s*(.+)$/gm, (m, t) => t.trim() ? `<h3>${t.trim()}</h3>` : '')
-    .replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid var(--borda);margin:14px 0">')
-    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
-    .replace(/\[(\d+)\]/g, '<sup style="color:var(--dourado);font-size:0.63em">[$1]</sup>');
+    .replace(/^#{1,3}\s*(.+)$/gm, function(m,t){ return '<h3>'+t.trim()+'</h3>'; })
+    .replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid var(--borda);margin:12px 0">')
+    .replace(/^> (.+)$/gm, function(m,t){ return '<blockquote>'+t+'</blockquote>'; })
+    .replace(/\[(\d+)\]/g, '<sup style="color:var(--ouro);font-size:0.62em">[$1]</sup>');
+  var ps = h.split(/
 
-  const paras = html.split(/\n\n+/).filter(p => p.trim());
-  html = paras.map(p => {
-    p = p.trim();
-    if (p.startsWith('<h') || p.startsWith('<hr') || p.startsWith('<blockquote')) return p;
-    return `<p>${p.replace(/\n/g, '<br>')}</p>`;
++/).filter(function(x){ return x.trim(); });
+  h = ps.map(function(x){
+    x = x.trim();
+    if (x.startsWith('<h')||x.startsWith('<hr')||x.startsWith('<blockquote')) return x;
+    return '<p>'+x.replace(/
+/g,'<br>')+'</p>';
   }).join('');
-
   if (refs && refs.length > 0) {
-    html += `<div class="refs"><h3>Referências</h3><ol>${refs.map(r => `<li>${r}</li>`).join('')}</ol></div>`;
+    h += '<div class="refs"><h3>Referencias</h3><ol>'
+      + refs.map(function(r){ return '<li>'+r+'</li>'; }).join('')
+      + '</ol></div>';
   }
-  return html;
+  return h;
 }
 
-function setStatus(msg, tipo) {
-  document.getElementById('statusTexto').textContent = msg;
-  document.getElementById('statusDot').className = 'status-dot' + (tipo === 'gerando' ? ' ativo' : tipo === 'ok' ? ' ok' : '');
+// ===== STATUS =====
+function setSt(msg, tipo) {
+  document.getElementById('stxt').textContent = msg;
+  document.getElementById('sdot').className = 'sdot' + (tipo==='g'?' a':tipo==='ok'?' ok':'');
 }
 
-// ========== CONTEXTO ACUMULADO ==========
-function getContextoAnterior(id) {
-  const idx = PECAS.findIndex(x => x.id === id);
-  const pecasAnteriores = PECAS.slice(0, idx).filter(p => resumos[p.id]);
-  if (pecasAnteriores.length === 0) return '';
-  const ultimas = pecasAnteriores.slice(-3); // últimas 3 peças
-  return `CONTEXTO DO LIVRO (o que já foi escrito antes desta peça):
-${ultimas.map(p => `[${p.titulo}]: ${resumos[p.id]}`).join('\n')}
+// ===== CONTEXTO =====
+function getCtx(id) {
+  var idx = PECAS.findIndex(function(x){ return x.id===id; });
+  var ant = PECAS.slice(0, idx).filter(function(p){ return resumos[p.id]; }).slice(-3);
+  if (!ant.length) return '';
+  return 'CONTEXTO (pecas anteriores):
+' + ant.map(function(p){ return '['+p.tit+']: '+resumos[p.id]; }).join('
+') + '
 
-Continue a narrativa de forma fluida, conectando ao que veio antes.`;
+Continue de forma fluida e conectada.';
 }
 
-// ========== GERAR PEÇA ==========
-async function gerarPeca(id) {
-  const notas = document.getElementById('notasInput')?.value || '';
+// ===== GERAR =====
+function gerarPeca(id) {
+  var notas = (document.getElementById('notasEl')||{}).value || '';
   estado[id].notas = notas;
   estado[id].status = 'gerando';
   estado[id].texto = '';
   estado[id].refs = [];
-  atualizarItem(id);
-  setStatus('Gerando...', 'gerando');
-
-  const box = document.getElementById('conteudoBox');
-  if (box) {
-    box.className = 'conteudo-box';
-    box.innerHTML = '<div style="text-align:center;padding:40px;color:var(--dourado)"><div style="font-size:1.8rem;margin-bottom:10px">✦</div><div>Gerando...<br><span style="font-size:0.73rem;opacity:0.7">Pode levar até 40 segundos</span></div></div>';
-  }
-
-  const p = PECAS.find(x => x.id === id);
-  const contexto = getContextoAnterior(id);
-  const prompt = buildPrompt(p, notas, contexto);
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
-        stream: false,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || 'Erro ' + response.status);
-
-    const textoRaw = data.content?.[0]?.text || '';
-    if (!textoRaw) throw new Error('Resposta vazia.');
-
-    // Extrair resumo para contexto
-    const matchResumo = textoRaw.match(/---RESUMO---([\s\S]+?)---FIMRESUMO---/);
-    if (matchResumo) resumos[id] = matchResumo[1].trim();
-
-    // Extrair refs
-    const matchRefs = textoRaw.match(/---REFS---([\s\S]+?)---FIMREFS---/);
-    const refs = matchRefs
-      ? matchRefs[1].trim().split('\n').map(r => r.replace(/^\d+\.\s*/, '').trim()).filter(Boolean)
-      : [];
-
-    // Limpar marcadores
-    const textoLimpo = textoRaw
-      .replace(/---RESUMO---[\s\S]+?---FIMRESUMO---/, '')
-      .replace(/---REFS---[\s\S]+?---FIMREFS---/, '')
-      .trim();
-
-    estado[id].texto = textoLimpo;
+  updItem(id);
+  setSt('Gerando...','g');
+  var cbox = document.getElementById('cbox');
+  if (cbox) { cbox.className='cbox'; cbox.innerHTML='<div style="text-align:center;padding:40px;color:var(--ouro)"><div style="font-size:1.6rem;margin-bottom:10px">✦</div><div>Gerando...<br><small style="opacity:.7">Ate 40 segundos</small></div></div>'; }
+  var p = PECAS.find(function(x){ return x.id===id; });
+  var ctx = getCtx(id);
+  var prompt = buildPrompt(p, notas, ctx);
+  fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key': API_KEY,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body: JSON.stringify({
+      model:'claude-sonnet-4-6',
+      max_tokens:4000,
+      stream:false,
+      system: SYSPROMPT,
+      messages:[{role:'user',content:prompt}]
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    if (data.error) throw new Error(data.error.message);
+    var raw = (data.content && data.content[0] && data.content[0].text) || '';
+    if (!raw) throw new Error('Resposta vazia');
+    var mRes = raw.match(/---RESUMO---([\s\S]+?)---FIMRESUMO---/);
+    if (mRes) resumos[id] = mRes[1].trim();
+    var mRef = raw.match(/---REFS---([\s\S]+?)---FIMREFS---/);
+    var refs = mRef ? mRef[1].trim().split('
+').map(function(r){ return r.replace(/^\d+\.\s*/,'').trim(); }).filter(Boolean) : [];
+    var txt = raw.replace(/---RESUMO---[\s\S]+?---FIMRESUMO---/,'').replace(/---REFS---[\s\S]+?---FIMREFS---/,'').trim();
+    estado[id].texto = txt;
     estado[id].refs = refs;
     estado[id].status = 'feito';
-    atualizarItem(id);
-
+    updItem(id);
     if (ativoId === id) {
-      const b = document.getElementById('conteudoBox');
-      if (b) { b.className = 'conteudo-box'; b.innerHTML = formatarTexto(textoLimpo, refs); }
-      const btnG = document.getElementById('btnGerar');
-      if (btnG) btnG.textContent = '↺ Regenerar';
-      const acoes = document.querySelector('.acoes');
-      if (acoes && !document.getElementById('btnDl')) {
-        const btnDl = document.createElement('button');
-        btnDl.className = 'btn btn-download'; btnDl.id = 'btnDl';
-        btnDl.textContent = '⬇ Baixar .doc';
-        btnDl.onclick = () => baixarDoc(id);
-        acoes.appendChild(btnDl);
+      var b = document.getElementById('cbox');
+      if (b) { b.className='cbox'; b.innerHTML=fmtTexto(txt,refs); }
+      var bg = document.getElementById('btnGerar');
+      if (bg) bg.textContent = 'Regenerar';
+      var ac = document.querySelector('.acoes');
+      if (ac && !document.getElementById('btnDl')) {
+        var btn = document.createElement('button');
+        btn.className='btn btn-g'; btn.id='btnDl';
+        btn.textContent='Baixar .doc';
+        btn.onclick = (function(xid){ return function(){ dlDoc(xid); }; })(id);
+        ac.appendChild(btn);
       }
     }
-    setStatus(`"${p.titulo}" gerado com sucesso`, 'ok');
-
-  } catch(e) {
+    setSt(p.tit + ' gerado!', 'ok');
+  })
+  .catch(function(e) {
     estado[id].status = 'pendente';
-    atualizarItem(id);
-    const b = document.getElementById('conteudoBox');
-    if (b) {
-      b.className = 'conteudo-box';
-      b.innerHTML = `<div style="text-align:center;padding:40px;color:#e74c3c">
-        <div style="font-size:1.3rem;margin-bottom:10px">⚠</div>
-        <div style="font-weight:bold;margin-bottom:6px">Erro ao gerar</div>
-        <div style="font-size:0.78rem;opacity:0.8">${e.message}</div>
-        <div style="margin-top:12px;font-size:0.72rem;color:var(--texto2)">Verifique sua API Key clicando em "API ativa" no topo.</div>
-      </div>`;
-    }
-    setStatus('Erro: ' + e.message, '');
-  }
+    updItem(id);
+    var b = document.getElementById('cbox');
+    if (b) b.innerHTML = '<div style="text-align:center;padding:40px;color:#e74c3c"><div style="font-size:1.3rem;margin-bottom:8px">erro</div><div style="font-size:0.78rem">' + e.message + '</div><div style="margin-top:10px;font-size:0.7rem;color:var(--txt2)">Verifique a API Key no canto superior direito.</div></div>';
+    setSt('Erro: ' + e.message, '');
+  });
 }
 
-// ========== GERAR TUDO ==========
-async function toggleGerarTudo() {
+// ===== GERAR TUDO =====
+function gerarTudo() {
   if (gerandoTudo) {
-    pararGeracao = true; gerandoTudo = false;
-    document.getElementById('btnGerarTudo').textContent = '✦ Gerar livro completo';
-    document.getElementById('btnGerarTudo').classList.remove('parar');
-    setStatus('Geração pausada', ''); return;
+    pararGen = true; gerandoTudo = false;
+    document.getElementById('btnTudo').textContent = 'Gerar livro completo';
+    document.getElementById('btnTudo').classList.remove('parar');
+    setSt('Pausado',''); return;
   }
-  gerandoTudo = true; pararGeracao = false;
-  const btn = document.getElementById('btnGerarTudo');
-  btn.textContent = '⬛ Parar'; btn.classList.add('parar');
-  document.getElementById('progressoArea').style.display = 'block';
-
-  let feitos = PECAS.filter(p => estado[p.id].status === 'feito').length;
-
-  for (const p of PECAS) {
-    if (pararGeracao) break;
-    if (estado[p.id].status === 'feito') continue;
+  gerandoTudo = true; pararGen = false;
+  document.getElementById('btnTudo').textContent = 'Parar';
+  document.getElementById('btnTudo').classList.add('parar');
+  document.getElementById('progArea').style.display = 'block';
+  var feitos = PECAS.filter(function(p){ return estado[p.id].status==='feito'; }).length;
+  function next(i) {
+    if (i >= PECAS.length || pararGen) {
+      gerandoTudo = false; pararGen = false;
+      document.getElementById('btnTudo').textContent = 'Gerar livro completo';
+      document.getElementById('btnTudo').classList.remove('parar');
+      setSt('Concluido!','ok'); return;
+    }
+    var p = PECAS[i];
+    if (estado[p.id].status === 'feito') { next(i+1); return; }
     if (ativoId !== p.id) abrirPeca(p.id);
-    await gerarPeca(p.id);
-    feitos++;
-    const pct = Math.round((feitos / PECAS.length) * 100);
-    document.getElementById('progressoFill').style.width = pct + '%';
-    document.getElementById('progressoTexto').textContent = `${feitos} / ${PECAS.length} peças`;
-    await new Promise(r => setTimeout(r, 400));
+    var origFetch = gerarPeca;
+    // Usar Promise wrapper
+    var oldStatus = estado[p.id].status;
+    gerarPeca(p.id);
+    // Poll ate terminar
+    var poll = setInterval(function() {
+      if (estado[p.id].status === 'feito' || estado[p.id].status === 'pendente') {
+        clearInterval(poll);
+        feitos++;
+        var pct = Math.round(feitos/PECAS.length*100);
+        document.getElementById('progFill').style.width = pct + '%';
+        document.getElementById('progTxt').textContent = feitos + ' / ' + PECAS.length;
+        setTimeout(function(){ next(i+1); }, 500);
+      }
+    }, 1000);
   }
-
-  gerandoTudo = false; pararGeracao = false;
-  btn.textContent = '✦ Gerar livro completo'; btn.classList.remove('parar');
-  setStatus('Livro completo gerado!', 'ok');
+  next(0);
 }
 
-// ========== DOWNLOAD INDIVIDUAL ==========
-function baixarDoc(id) {
-  const p = PECAS.find(x => x.id === id);
-  const st = estado[id];
-  if (!st.texto) return;
-  setStatus('Gerando .doc...', 'gerando');
-  const html = gerarHtmlDoc(p, st);
-  const blob = new Blob(['﻿' + html], { type: 'application/msword' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'EF_' + p.id + '_DraCamilaLino.doc';
-  a.click();
-  setStatus('Download concluido!', 'ok');
-}
-
-function processarTextoParaDoc(texto) {
+// ===== PROCESSAR TEXTO PARA DOC =====
+function proc(texto) {
   if (!texto) return '';
-  let html = texto
+  var h = texto
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/^#{1,3}\s*(.+)$/gm, function(m,t){ return '<h3 style="font-family:Arial;font-size:9pt;color:#3d1a6e;text-transform:uppercase;margin:14pt 0 6pt">' + t.trim() + '</h3>'; })
+    .replace(/^#{1,3}\s*(.+)$/gm, function(m,t){ return '<h3 style="font-family:Arial;font-size:9pt;color:#3d1a6e;text-transform:uppercase;margin:14pt 0 6pt">'+t.trim()+'</h3>'; })
     .replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid #ddd;margin:10pt 0">')
-    .replace(/^> (.+)$/gm, function(m,t){ return '<blockquote style="border-left:3px solid #c9a84c;margin:10pt 0 10pt 1cm;padding:8pt 14pt;background:#f9f5ff;font-style:italic;color:#555;font-size:10.5pt">' + t + '</blockquote>'; })
+    .replace(/^> (.+)$/gm, function(m,t){ return '<blockquote style="border-left:3px solid #c9a84c;margin:10pt 0 10pt 1cm;padding:8pt 14pt;background:#f9f5ff;font-style:italic;color:#555;font-size:10.5pt">'+t+'</blockquote>'; })
     .replace(/\[(\d+)\]/g, '<sup style="font-size:7pt;color:#c9a84c">[$1]</sup>');
-  var paras = html.split(/\n\n+/).filter(function(x){ return x.trim(); });
-  html = paras.map(function(x){
+  var ps = h.split(/
+
++/).filter(function(x){ return x.trim(); });
+  return ps.map(function(x){
     x = x.trim();
-    if (x.startsWith('<h') || x.startsWith('<hr') || x.startsWith('<blockquote')) return x;
-    return '<p style="font-family:Georgia;font-size:11pt;line-height:1.8;text-align:justify;margin-bottom:8pt;text-indent:1.25cm">' + x.replace(/
-/g,' ') + '</p>';
+    if (x.startsWith('<h')||x.startsWith('<hr')||x.startsWith('<blockquote')) return x;
+    return '<p style="font-family:Georgia;font-size:11pt;line-height:1.8;text-align:justify;margin-bottom:8pt;text-indent:1.25cm">'+x.replace(/
+/g,' ')+'</p>';
   }).join('');
-  return html;
 }
 
-function gerarHtmlDoc(p, st) {
-  var textoHtml = processarTextoParaDoc(st.texto);
-  var refsHtml = '';
-  if (st.refs && st.refs.length > 0) {
-    refsHtml = '<div style="margin-top:24pt;border-top:1px solid #ddd;padding-top:14pt"><h3 style="font-family:Arial;font-size:9pt;color:#3d1a6e;text-transform:uppercase;margin-bottom:8pt">Referencias</h3><ol style="font-size:9pt;line-height:1.6;color:#555">';
-    st.refs.forEach(function(r){ refsHtml += '<li style="margin-bottom:4pt">' + r + '</li>'; });
-    refsHtml += '</ol></div>';
+function docHtml(p, st) {
+  var refs = '';
+  if (st.refs && st.refs.length) {
+    refs = '<div style="margin-top:24pt;border-top:1px solid #ddd;padding-top:14pt">'
+      + '<h3 style="font-family:Arial;font-size:9pt;color:#3d1a6e;text-transform:uppercase;margin-bottom:8pt">Referencias</h3>'
+      + '<ol style="font-size:9pt;line-height:1.6;color:#555">'
+      + st.refs.map(function(r){ return '<li style="margin-bottom:4pt">'+r+'</li>'; }).join('')
+      + '</ol></div>';
   }
   return '<html><head><meta charset="UTF-8"><style>'
     + '@page{size:16cm 23cm;margin:3cm 2.5cm 2.5cm 3cm}'
     + 'body{font-family:Georgia;font-size:11pt;line-height:1.8;color:#1a1a1a}'
-    + 'strong{color:#3d1a6e}'
-    + '</style></head><body>'
-    + '<div style="font-family:Arial;font-size:7.5pt;color:#c9a84c;letter-spacing:2px;text-transform:uppercase;margin-bottom:4pt">' + p.secao + '</div>'
-    + '<h1 style="font-family:Georgia;font-size:16pt;color:#3d1a6e;font-weight:normal;margin-bottom:4pt">' + p.titulo + '</h1>'
-    + '<hr style="border:1px solid #c9a84c;margin-bottom:16pt">'
-    + textoHtml
-    + refsHtml
-    + '<div style="font-family:Arial;font-size:7.5pt;color:#aaa;border-top:1px solid #ddd;margin-top:32pt;padding-top:5pt">Dra. Camila Lino - CRM 274280 SP - Excepcionalidades Femininas</div>'
+    + 'strong{color:#3d1a6e}</style></head><body>'
+    + '<div style="font-family:Arial;font-size:7.5pt;color:#c9a84c;letter-spacing:2px;text-transform:uppercase;margin-bottom:4pt">'+p.sec+'</div>'
+    + '<h1 style="font-family:Georgia;font-size:16pt;color:#3d1a6e;font-weight:normal;margin-bottom:12pt">'+p.tit+'</h1>'
+    + proc(st.texto) + refs
+    + '<div style="font-family:Arial;font-size:7pt;color:#aaa;border-top:1px solid #ddd;margin-top:28pt;padding-top:5pt">Dra. Camila Lino - CRM 274280 SP - Excepcionalidades Femininas</div>'
     + '</body></html>';
 }
 
-// ========== ZIP ==========
-async function baixarZip() {
-  var feitos = PECAS.filter(function(p){ return estado[p.id].status === 'feito'; });
-  if (feitos.length === 0) { setStatus('Nenhuma peca gerada ainda.', ''); return; }
-  setStatus('Gerando ZIP...', 'gerando');
+// ===== DOWNLOAD INDIVIDUAL =====
+function dlDoc(id) {
+  var p = PECAS.find(function(x){ return x.id===id; });
+  var st = estado[id];
+  if (!st.texto) return;
+  var blob = new Blob(['﻿'+docHtml(p,st)], {type:'application/msword'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'EF_'+String(PECAS.indexOf(p)+1).padStart(2,'0')+'_'+p.id+'_DraCamilaLino.doc';
+  a.click();
+  setSt('Download concluido!','ok');
+}
+
+// ===== ZIP =====
+function baixarZip() {
+  var feitos = PECAS.filter(function(p){ return estado[p.id].status==='feito'; });
+  if (!feitos.length) { setSt('Nenhuma peca gerada ainda.',''); return; }
+  setSt('Gerando ZIP...','g');
   var zip = new JSZip();
   feitos.forEach(function(p) {
-    var st = estado[p.id];
-    var html = gerarHtmlDoc(p, st);
-    var idx = PECAS.indexOf(p);
-    var nome = String(idx).padStart(2,'0') + '_' + p.titulo.replace(/[^a-zA-Z0-9]/g,'_').slice(0,30) + '.doc';
-    zip.file('ExcepcionalidadesFemininas/' + nome, '﻿' + html);
+    var i = PECAS.indexOf(p);
+    var nome = String(i+1).padStart(2,'0')+'_'+p.id+'.doc';
+    zip.file('ExcepcionalidadesFemininas/'+nome, '﻿'+docHtml(p,estado[p.id]));
   });
-  var blob = await zip.generateAsync({ type: 'blob' });
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'ExcepcionalidadesFemininas_DraCamilaLino.zip';
-  a.click();
-  setStatus('ZIP baixado!', 'ok');
+  zip.generateAsync({type:'blob'}).then(function(blob) {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'ExcepcionalidadesFemininas_DraCamilaLino.zip';
+    a.click();
+    setSt('ZIP baixado!','ok');
+  });
 }
 
-// ========== DOC UNICO ==========
-function baixarDocUnico() {
-  var feitos = PECAS.filter(function(p){ return estado[p.id].status === 'feito'; });
-  if (feitos.length === 0) { setStatus('Nenhuma peca gerada ainda.', ''); return; }
-  setStatus('Gerando livro completo...', 'gerando');
-
-  var estilos = '<style>'
-    + '@page{size:16cm 23cm;margin:3cm 2.5cm 2.5cm 3cm}'
-    + 'body{font-family:Georgia;font-size:11pt;line-height:1.8;color:#1a1a1a}'
-    + 'h1{font-family:Georgia;font-size:16pt;color:#3d1a6e;font-weight:normal;margin:0 0 4pt}'
-    + 'h3{font-family:Arial;font-size:9pt;color:#3d1a6e;text-transform:uppercase;letter-spacing:0.5px;margin:14pt 0 6pt}'
-    + 'p{font-family:Georgia;font-size:11pt;line-height:1.8;text-align:justify;margin-bottom:8pt;text-indent:1.25cm}'
-    + 'blockquote{border-left:3px solid #c9a84c;margin:10pt 0 10pt 1cm;padding:8pt 14pt;background:#f9f5ff;font-style:italic;color:#555;font-size:10.5pt}'
-    + 'strong{color:#3d1a6e}'
-    + 'sup{font-size:7pt;color:#c9a84c}'
-    + '.quebra{page-break-before:always}'
-    + '</style>';
-
-  var corpo = '<div style="text-align:center;padding:80pt 0;page-break-after:always">'
-    + '<div style="font-family:Arial;font-size:8pt;color:#c9a84c;letter-spacing:3px;text-transform:uppercase;margin-bottom:20pt">Dra. Camila Lino</div>'
-    + '<div style="font-family:Georgia;font-size:28pt;color:#3d1a6e;font-weight:bold;line-height:1.2;margin-bottom:8pt">EXCEPCIONALIDADES<br>FEMININAS</div>'
-    + '<div style="font-family:Georgia;font-size:12pt;color:#5c2d91;font-style:italic;margin-bottom:40pt">TDAH · Autismo · Altas Habilidades</div>'
-    + '<div style="font-family:Arial;font-size:9pt;color:#888">O que ninguem percebe quando a mulher aprende a mascarar tudo</div>'
-    + '<div style="margin-top:60pt;font-family:Arial;font-size:7.5pt;color:#aaa">CRM 274280 SP</div>'
-    + '</div>';
-
-  feitos.forEach(function(p, i) {
+// ===== DOC UNICO =====
+function baixarUnico() {
+  var feitos = PECAS.filter(function(p){ return estado[p.id].status==='feito'; });
+  if (!feitos.length) { setSt('Nenhuma peca gerada ainda.',''); return; }
+  setSt('Gerando livro completo...','g');
+  var css = '<style>@page{size:16cm 23cm;margin:3cm 2.5cm 2.5cm 3cm}body{font-family:Georgia;font-size:11pt;line-height:1.8;color:#1a1a1a}h1{font-family:Georgia;font-size:16pt;color:#3d1a6e;font-weight:normal}strong{color:#3d1a6e}.qb{page-break-before:always}</style>';
+  var capa = '<div style="text-align:center;padding:80pt 0;page-break-after:always">'
+    + '<div style="font-family:Arial;font-size:8pt;color:#c9a84c;letter-spacing:3px;text-transform:uppercase;margin-bottom:18pt">Dra. Camila Lino</div>'
+    + '<div style="font-family:Georgia;font-size:26pt;color:#3d1a6e;font-weight:bold;line-height:1.2;margin-bottom:8pt">EXCEPCIONALIDADES<br>FEMININAS</div>'
+    + '<div style="font-family:Georgia;font-size:11pt;color:#5c2d91;font-style:italic;margin-bottom:36pt">TDAH · Autismo · Altas Habilidades</div>'
+    + '<div style="font-family:Arial;font-size:8.5pt;color:#888">O que ninguem percebe quando a mulher aprende a mascarar tudo</div>'
+    + '<div style="margin-top:50pt;font-family:Arial;font-size:7pt;color:#aaa">CRM 274280 SP</div></div>';
+  var corpo = feitos.map(function(p, i) {
     var st = estado[p.id];
-    var textoHtml = processarTextoParaDoc(st.texto);
-    var refsHtml = '';
-    if (st.refs && st.refs.length > 0) {
-      refsHtml = '<div style="margin-top:24pt;border-top:1px solid #ddd;padding-top:14pt"><h3>Referencias</h3><ol style="font-size:9pt;line-height:1.6;color:#555">';
-      st.refs.forEach(function(r){ refsHtml += '<li style="margin-bottom:4pt">' + r + '</li>'; });
-      refsHtml += '</ol></div>';
+    var refs = '';
+    if (st.refs && st.refs.length) {
+      refs = '<div style="margin-top:24pt;border-top:1px solid #ddd;padding-top:14pt">'
+        + '<p style="font-family:Arial;font-size:9pt;color:#3d1a6e;text-transform:uppercase;margin-bottom:8pt;text-indent:0">Referencias</p>'
+        + '<ol style="font-size:9pt;line-height:1.6;color:#555">'
+        + st.refs.map(function(r){ return '<li>'+r+'</li>'; }).join('')
+        + '</ol></div>';
     }
-    corpo += '<div class="' + (i > 0 ? 'quebra' : '') + '">'
-      + '<div style="font-family:Arial;font-size:7.5pt;color:#c9a84c;letter-spacing:2px;text-transform:uppercase;margin-bottom:4pt">' + p.secao + '</div>'
-      + '<h1>' + p.titulo + '</h1>'
-      + '<hr style="border:1px solid #c9a84c;margin-bottom:16pt">'
-      + textoHtml + refsHtml
-      + '<div style="font-family:Arial;font-size:7.5pt;color:#aaa;border-top:1px solid #ddd;margin-top:32pt;padding-top:5pt">Dra. Camila Lino - CRM 274280 SP</div>'
+    return '<div class="' + (i>0?'qb':'') + '">'
+      + '<div style="font-family:Arial;font-size:7.5pt;color:#c9a84c;letter-spacing:2px;text-transform:uppercase;margin-bottom:4pt">'+p.sec+'</div>'
+      + '<h1>'+p.tit+'</h1>'
+      + '<hr style="border:1px solid #c9a84c;margin-bottom:14pt">'
+      + proc(st.texto) + refs
+      + '<div style="font-family:Arial;font-size:7pt;color:#aaa;border-top:1px solid #ddd;margin-top:28pt;padding-top:5pt">Dra. Camila Lino - CRM 274280 SP</div>'
       + '</div>';
-  });
-
-  var html = '<html><head><meta charset="UTF-8">' + estilos + '</head><body>' + corpo + '</body></html>';
-  var blob = new Blob(['﻿' + html], { type: 'application/msword' });
+  }).join('');
+  var full = '<html><head><meta charset="UTF-8">'+css+'</head><body>'+capa+corpo+'</body></html>';
+  var blob = new Blob(['﻿'+full], {type:'application/msword'});
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'ExcepcionalidadesFemininas_COMPLETO_DraCamilaLino.doc';
   a.click();
-  setStatus('Livro completo baixado!', 'ok');
+  setSt('Livro completo baixado!','ok');
 }
 
+// ===== SYSTEM PROMPT =====
+var SYSPROMPT = 'Voce e o assistente editorial da Dra. Camila Lino, medica pos-graduada em Psiquiatria (CRM 274280 SP), coautora do livro "Excepcionalidades Femininas: TDAH, Autismo e Altas Habilidades".
 
-// ========== PROMPTS ==========
-const SYSTEM_PROMPT = `Voce e o assistente editorial da Dra. Camila Lino, medica pos-graduada em Psiquiatria (CRM 274280 SP), coautora do livro "Excepcionalidades Femininas: TDAH, Autismo e Altas Habilidades — O que ninguem percebe quando a mulher aprende a mascarar tudo".
+'
+  + 'IDENTIDADE DA AUTORA: A Dra. Camila Lino recebeu seu proprio diagnostico de ASD Nivel 1 + TDAH Combinado aos 35 anos. Ela sabe na pele o que e descobrir isso tarde. Integre naturalmente: "fui uma dessas mulheres", "sei o que e olhar para tras e reescrever a historia". Nao exagere.
 
-IDENTIDADE DA AUTORA (integre naturalmente ao texto quando relevante):
-A Dra. Camila Lino recebeu seu proprio diagnostico de ASD Nivel 1 + TDAH Combinado aos 35 anos. Ela sabe na pele o que e acordar um dia e descobrir que a vida inteira fazia sentido — e ao mesmo tempo perceber que voce perdeu decadas sem saber quem realmente era. Essa experiencia pessoal permeia o livro sem ser o centro — aparece como "fui uma dessas mulheres" ou "sei o que e olhar para tras e reescrever a historia". Nao exagere, mas nao omita.
+'
+  + 'NIVEL EXIGIDO: Estilo Ana Beatriz Barbosa Silva (Mentes Inquietas) + Leonardo Maranho (A Vida com Cetamina). O leitor fecha o livro pensando que foi o melhor que leu. A paciente chora de reconhecimento. O profissional aprende.
 
-REFERENCIAS DE ESTILO OBRIGATORIAS:
-1. Ana Beatriz Barbosa Silva (Mentes Inquietas): casos clinicos reais anonimizados que o leitor se reconhece, paragrafos medios, ciencia integrada na narrativa, o leitor leigo chora e o profissional aprende.
-2. Leonardo Maranho (A Vida com... Cetamina): introducao direta ao leitor "voce que chegou ate aqui", dados epidemiologicos reais com notas de rodape [1][2], narrativa historica que ambienta o contexto cientifico, capitulos que comecoam com frase celebre de autor real.
+'
+  + 'REGRAS ABSOLUTAS:
+'
+  + '- Paragrafos de 3 a 6 linhas
+'
+  + '- Citacao de abertura: "> [frase] — [Autor Real]"
+'
+  + '- Referencias [1][2] inline no texto
+'
+  + '- Casos clinicos ficticios: "Marina, 34 anos, engenheira..."
+'
+  + '- NUNCA titulos visiveis de secao (Introducao, Desenvolvimento, Conclusao)
+'
+  + '- O texto FLUI como um livro — o leitor sente narrativa, nao ve estrutura
+'
+  + '- Portugues brasileiro correto
+'
+  + '- NUNCA comece paragrafo com "E importante...", "Sabemos que...", "Podemos observar..."
 
-NIVEL EXIGIDO: O leitor fecha o livro pensando "que livro foda". O profissional pensa "aprendi, me diverti, valeu a compra". A paciente pensa "finalmente alguem entendeu".
+'
+  + 'ESTRUTURA (invisivel):
+'
+  + '1. Frase celebre em blockquote ("> frase — Autor")
+'
+  + '2. Cena de abertura — entra direto na dor da leitora (200-300 palavras)
+'
+  + '3. Desenvolvimento: alterna narrativa emocional e ciencia integrada (600-800 palavras)
+'
+  + '4. Momento Iluminado: narrativa de virada, terceira pessoa, 120-160 palavras
+'
+  + '5. Movimentos que Iluminam: **1.** **2.** **3.** perguntas em negrito
+'
+  + '6. Fechamento: resume, frase forte em negrito, prepara proximo capitulo (100-150 palavras)
 
-FORMATACAO DO TEXTO (OBRIGATORIA):
-- Paragrafos de 3 a 6 linhas — nem muito curtos nem muito longos
-- Citacao de abertura do capitulo em destaque: "> [frase] — [Autor Real]"
-- Referencias numericas [1] inline no texto, nunca em parenteses
-- Casos clinicos anonimizados: "Marina, 34 anos, engenheira..." (nomes ficticios)
-- Dados epidemiologicos reais com nota [1]
-- Nao use titulos de secao visiveis — o texto flui como um livro
-- Quando precisar de dado clinico denso: "### Para o profissional de saude" (use so 1x por capitulo, max)
-- Portugues brasileiro correto, virgulas e pontuacao precisas
-- NUNCA comece paragrafo com: "E importante...", "Sabemos que...", "Podemos observar...", "Neste capitulo..."
+'
+  + 'ENCERRAMENTO DO LIVRO: O Cap 27 deve deixar a mulher se sentindo extraordinaria sem dizer isso — ela fecha e sente, nao le.
 
-ESTRUTURA DO CAPITULO (invisivel — o leitor so sente a narrativa):
-[ABERTURA — 250 a 350 palavras]
-Frase celebre real em blockquote. Depois: cena de uma mulher anonima que qualquer leitora reconhece. Entra direto na dor — sem apresentar o tema explicitamente. Conecta ao capitulo anterior com naturalidade.
-
-[DESENVOLVIMENTO — 700 a 900 palavras]
-Alterna entre narrativa emocional e ciencia integrada. Referencias [1][2] aparecem dentro dos paragrafos. Casos clinicos ficticios mas verossimeis. O profissional aprende. A paciente se ve.
-
-[MOMENTO ILUMINADO — 120 a 160 palavras]
-Narrativa breve de uma virada. Terceira pessoa. Sem nome proprio. Tom quase literario. Esperanca concreta — nao vazia.
-
-[MOVIMENTOS QUE ILUMINAM]
-**1.** [Pergunta em negrito]
-**2.** [Pergunta em negrito]
-**3.** [Pergunta em negrito]
-Servem para a leitora refletir e para o clinico usar em consulta.
-
-[FECHAMENTO — 100 a 150 palavras]
-Resume sem repetir. Ultima frase forte em negrito. Prepara o proximo capitulo organicamente: "No proximo capitulo, vamos..." — mas de forma narrativa, nao mecanica.
-
-COESAO DO LIVRO:
-Este e UM livro. A leitora faz uma jornada: de se sentir errada e mascarada → entender o que tem → se aceitar → buscar cuidado → se sentir extraordinaria. O ultimo capitulo deve deixar a mulher com a sensacao de que ela e um ser extraordinario — sem dizer isso explicitamente.
-
-REFERENCIAS:
-Apenas obras REAIS. Autores validos: Lotta Borg Skoglund, Sarah Hendrickx, Ellen Littman, Russell Barkley, Simon Baron-Cohen, DSM-5-TR, Tania Marshall, Patricia Quinn, Judith Gould, Michelle Garnett, Tony Attwood, Ned Hallowell, Ana Beatriz Barbosa Silva, Elaine Aron, Kazimierz Dabrowski.
-5 a 7 por capitulo. Formato: SOBRENOME, Nome. *Titulo*. Cidade: Editora, Ano.
-Ao final EXATAMENTE:
----REFS---
-1. SOBRENOME, Nome. *Titulo*. Cidade: Editora, Ano.
+'
+  + 'REFERENCIAS: Apenas obras REAIS. Autores: Lotta Borg Skoglund, Sarah Hendrickx, Ellen Littman, Russell Barkley, Simon Baron-Cohen, DSM-5-TR, Tania Marshall, Patricia Quinn, Tony Attwood, Ned Hallowell, Ana Beatriz Barbosa Silva.
+'
+  + '5 a 7 por capitulo. Formato: SOBRENOME, Nome. Titulo. Cidade: Editora, Ano.
+'
+  + 'Ao final EXATAMENTE:
+'
+  + '---REFS---
+1. ...
 ---FIMREFS---
-Resumo para contexto ao final:
----RESUMO---
-[2-3 linhas do que foi coberto e tom, para guiar o proximo capitulo]
+'
+  + '---RESUMO---
+[2-3 linhas do conteudo para guiar o proximo]
 ---FIMRESUMO---
-NAO inventar referencias. NAO usar titulos de secao visiveis.`;
+'
+  + 'NAO inventar referencias.';
 
-function buildPrompt(p, notas, contexto) {
-  const especificos = {
-    'citacao': `Crie a CITACAO DE ABERTURA do livro "Excepcionalidades Femininas". Deve ser uma frase unica, de autoria da Dra. Camila Lino, que capture a essencia do livro inteiro. Algo que faca o leitor parar antes mesmo de comecar. Estilo: "Voce nao e demais. Voce e inteira demais para um mundo que nao foi feito para mentes como a sua." — mas diferente, original, poderosa. Gere 3 opcoes e indique a recomendada.`,
-    'agradecimentos': `Escreva os AGRADECIMENTOS do livro. Tom: pessoal, autentico, que mostra quem a Dra. Camila Lino e de verdade. Mencione: pacientes (anonimas) que inspiraram, familia, Douglas (parceiro), comunidade de fe, Dr. Leonardo Maranho (medico e colaborador), a propria jornada como mulher neurodivergente que ainda esta se descobrindo. Extensao: 400-500 palavras. Sem excessos — cada agradecimento com peso real.`,
-    'prefacio': `Crie um ESPACO RESERVADO PARA PREFACIO com instrucoes claras para o autor convidado. Inclua: uma nota editorial entre colchetes explicando que o prefacio sera escrito por [Nome a definir], um modelo de estrutura sugerida para o prefaciador (o que abordar, extensao recomendada, tom), e uma versao preliminar de 300 palavras que pode ser usada como rascunho ou referencia. Tom da nota: profissional mas acolhedor.`,
-    'introducao': `Escreva a INTRODUCAO do livro. Esta e a porta de entrada — precisa capturar tanto a mulher que se reconhece quanto o profissional que quer entender. Estrutura: comeca com uma cena universal (uma mulher que sempre se sentiu errada), apresenta o livro e sua proposta, explica a jornada que o leitor vai fazer (as 8 partes), termina com um convite — nao uma promessa de cura, mas uma promessa de companhia e verdade. Extensao: 700-900 palavras.`,
-    'referencias': `Compile as REFERENCIAS GERAIS do livro "Excepcionalidades Femininas". Organize por: 1) Referencias principais sobre TDAH feminino, 2) Referencias sobre Autismo feminino, 3) Referencias sobre Altas Habilidades, 4) Referencias sobre neurodivergencia e genero, 5) Manuais diagnosticos e diretrizes. Inclua apenas obras REAIS dos autores: Lotta Borg Skoglund, Sarah Hendrickx, Ellen Littman, Russell Barkley, Simon Baron-Cohen, DSM-5-TR, Tania Marshall, Patricia Quinn, Judith Gould, Michelle Garnett, Tony Attwood, Ned Hallowell, Ana Beatriz Barbosa Silva, e outros autores relevantes e reais. Formato ABNT. Nao inventar obras.`
+function buildPrompt(p, notas, ctx) {
+  var esp = {
+    'citacao': 'Crie a CITACAO DE ABERTURA do livro. Uma frase unica, autoria da Dra. Camila Lino, que capture tudo. Gere 3 opcoes e indique a recomendada.',
+    'agradecimentos': 'Escreva os AGRADECIMENTOS. Tom pessoal e autentico. Mencione: pacientes anonimas, Douglas (parceiro), fe crista, Dr. Leonardo Maranho, a propria jornada de diagnostico tardio aos 35 anos. 400-500 palavras.',
+    'prefacio': 'Crie espaco reservado para PREFACIO com nota editorial e modelo para o prefaciador. Inclua versao preliminar de 300 palavras como referencia.',
+    'introducao': 'Escreva a INTRODUCAO. Porta de entrada para leitora e profissional. Cena universal de abertura, apresenta o livro e jornada das 8 partes, termina com convite — nao promessa de cura, mas de companhia. 700-900 palavras.',
+    'refs': 'Compile as REFERENCIAS GERAIS organizadas por tema: TDAH feminino, Autismo feminino, Altas Habilidades, Neurodivergencia e genero, Manuais diagnosticos. Apenas obras REAIS. Formato ABNT.'
   };
+  var base = ctx ? ctx + '
 
-  if (especificos[p.id]) {
-    return `${contexto ? contexto + '\n\n' : ''}${especificos[p.id]}${notas ? '\n\nNOTAS DA AUTORA: ' + notas : ''}`;
-  }
+' : '';
+  if (esp[p.id]) return base + esp[p.id] + (notas ? '
 
-  const capNum = p.id.replace('c', '');
-  return `${contexto ? contexto + '\n\n' : ''}Escreva o CAPITULO ${capNum}: "${p.titulo}"
-Subtopicos: ${p.desc}
-Parte do livro: ${p.secao}
-${notas ? 'NOTAS DA AUTORA: ' + notas : ''}
+NOTAS DA AUTORA: ' + notas : '');
+  var num = p.id.replace('c','');
+  return base + 'Escreva o CAPITULO ' + num + ': "' + p.tit + '"
+Subtopicos: ' + p.desc + '
+Parte: ' + p.sec
+    + (notas ? '
+NOTAS DA AUTORA: ' + notas : '')
+    + '
 
-Lembre: este capitulo faz parte de uma jornada. O leitor ja passou por tudo que veio antes. Conecte naturalmente. A frase celebre de abertura deve ter a ver especificamente com o tema deste capitulo — pode ser de cientistas, filosofos, escritores, ou da propria autora.
-
-Extensao: 1.200 a 1.500 palavras no corpo do texto.`;
-}
-
-// ========== ZIP COMPLETO ==========
-async function baixarZip() {
-  const feitos = PECAS.filter(p => estado[p.id].status === 'feito');
-  if (feitos.length === 0) { setStatus('Nenhuma peca gerada ainda.', ''); return; }
-  setStatus('Gerando ZIP...', 'gerando');
-  const zip = new JSZip();
-  feitos.forEach(p => {
-    const st = estado[p.id];
-    const html = gerarHtmlDoc(p, st);
-    const nome = p.id === 'citacao' ? '00_Citacao' :
-                 p.id === 'agradecimentos' ? '01_Agradecimentos' :
-                 p.id === 'prefacio' ? '02_Prefacio' :
-                 p.id === 'introducao' ? '03_Introducao' :
-                 p.id === 'referencias' ? '31_Referencias' :
-                 p.id.replace('c','').padStart(2,'0') + '_' + p.titulo.replace(/[^a-zA-Z0-9]/g,'_').slice(0,30);
-    zip.file('ExcepcionalidadesFemininas/' + nome + '.doc', '\ufeff' + html);
-  });
-  const blob = await zip.generateAsync({ type: 'blob' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'ExcepcionalidadesFemininas_DraCamilaLino.zip';
-  a.click();
-  setStatus('ZIP baixado com sucesso!', 'ok');
-}
-
-// ========== DOC UNICO ==========
-function baixarDocUnico() {
-  const feitos = PECAS.filter(p => estado[p.id].status === 'feito');
-  if (feitos.length === 0) { setStatus('Nenhuma peca gerada ainda.', ''); return; }
-  setStatus('Gerando livro completo...', 'gerando');
-  
-  let htmlCompleto = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
-<head><meta charset="UTF-8">
-<style>
-  @page { size: 16cm 23cm; margin: 3cm 2.5cm 2.5cm 3cm; }
-  body { font-family: Georgia; font-size: 11pt; line-height: 1.8; color: #1a1a1a; }
-  h1 { font-family: Georgia; font-size: 16pt; color: #3d1a6e; font-weight: normal; margin: 0 0 4pt; }
-  h2 { font-family: Georgia; font-size: 10.5pt; color: #5c2d91; font-style: italic; font-weight: normal; margin: 0 0 16pt; }
-  h3 { font-family: Arial; font-size: 9pt; color: #3d1a6e; text-transform: uppercase; letter-spacing: 0.5px; margin: 14pt 0 6pt; }
-  p { font-family: Georgia; font-size: 11pt; line-height: 1.8; text-align: justify; margin-bottom: 8pt; text-indent: 1.25cm; }
-  p.sem-indent { text-indent: 0; }
-  blockquote { border-left: 3px solid #c9a84c; margin: 10pt 0 10pt 1cm; padding: 8pt 14pt; background: #f9f5ff; font-style: italic; color: #555; font-size: 10.5pt; }
-  .secao { font-family: Arial; font-size: 7.5pt; color: #c9a84c; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4pt; }
-  .rodape { font-family: Arial; font-size: 7.5pt; color: #aaa; border-top: 1px solid #ddd; margin-top: 32pt; padding-top: 5pt; }
-  .quebra { page-break-before: always; }
-  .refs-section { margin-top: 24pt; padding-top: 16pt; border-top: 1px solid #ddd; }
-  sup { font-size: 7pt; color: #c9a84c; }
-  strong { color: #3d1a6e; }
-</style>
-</head><body>`;
-
-  // Capa
-  htmlCompleto += `<div style="text-align:center;padding:80pt 0;page-break-after:always">
-    <div style="font-family:Arial;font-size:8pt;color:#c9a84c;letter-spacing:3px;text-transform:uppercase;margin-bottom:20pt">Dra. Camila Lino</div>
-    <div style="font-family:Georgia;font-size:28pt;color:#3d1a6e;font-weight:bold;line-height:1.2;margin-bottom:8pt">EXCEPCIONALIDADES<br>FEMININAS</div>
-    <div style="font-family:Georgia;font-size:12pt;color:#5c2d91;font-style:italic;margin-bottom:40pt">TDAH · Autismo · Altas Habilidades</div>
-    <div style="font-family:Arial;font-size:9pt;color:#888">O que ninguém percebe quando a mulher aprende a mascarar tudo</div>
-    <div style="margin-top:60pt;font-family:Arial;font-size:7.5pt;color:#aaa">Dra. Camila Lino — CRM 274280 SP<br>Médica, Pós-graduada em Psiquiatria</div>
-  </div>`;
-
-  feitos.forEach((p, i) => {
-    const st = estado[p.id];
-    const textoHtml = processarTextoParaDoc(st.texto);
-    const refsHtml = st.refs.length > 0
-      ? `<div class="refs-section"><h3>Referências</h3><ol style="font-size:9pt;line-height:1.6;color:#555">${st.refs.map(r => `<li style="margin-bottom:4pt">${r}</li>`).join('')}</ol></div>`
-      : '';
-    
-    htmlCompleto += `<div class="${i > 0 ? 'quebra' : ''}">
-      <div class="secao">${p.secao}</div>
-      <h1>${p.titulo}</h1>
-      ${textoHtml}
-      ${refsHtml}
-      <div class="rodape">Dra. Camila Lino — CRM 274280 SP · Excepcionalidades Femininas</div>
-    </div>`;
-  });
-
-  htmlCompleto += '</body></html>';
-
-  const blob = new Blob(['\ufeff' + htmlCompleto], { type: 'application/msword' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'ExcepcionalidadesFemininas_COMPLETO_DraCamilaLino.doc';
-  a.click();
-  setStatus('Livro completo baixado!', 'ok');
-}
-
-function processarTextoParaDoc(texto) {
-  if (!texto) return '';
-  return texto
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/^#{1,3}\s*(.+)$/gm, (m, t) => `<h3>${t.trim()}</h3>`)
-    .replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid #ddd;margin:10pt 0">')
-    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
-    .replace(/\[(\d+)\]/g, '<sup>[$1]</sup>')
-    .split(/\n\n+/).filter(x => x.trim())
-    .map(x => {
-      x = x.trim();
-      if (x.startsWith('<h') || x.startsWith('<hr') || x.startsWith('<blockquote')) return x;
-      return `<p>${x.replace(/\n/g,' ')}</p>`;
-    }).join('');
-}
-
-function gerarHtmlDoc(p, st) {
-  const textoHtml = processarTextoParaDoc(st.texto);
-  const refsHtml = st.refs.length > 0
-    ? `<div class="refs-section"><h3>Referencias</h3><ol>${st.refs.map(r => `<li>${r}</li>`).join('')}</ol></div>`
-    : '';
-  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
-<head><meta charset="UTF-8">
-<style>
-  @page { size: 16cm 23cm; margin: 3cm 2.5cm 2.5cm 3cm; }
-  body { font-family: Georgia; font-size: 11pt; line-height: 1.8; color: #1a1a1a; }
-  h1 { font-family: Georgia; font-size: 16pt; color: #3d1a6e; font-weight: normal; margin-bottom: 4pt; }
-  h3 { font-family: Arial; font-size: 9pt; color: #3d1a6e; text-transform: uppercase; letter-spacing: 0.5px; margin: 14pt 0 6pt; }
-  p { font-family: Georgia; font-size: 11pt; line-height: 1.8; text-align: justify; margin-bottom: 8pt; text-indent: 1.25cm; }
-  blockquote { border-left: 3px solid #c9a84c; margin: 10pt 0 10pt 1cm; padding: 8pt 14pt; background: #f9f5ff; font-style: italic; color: #555; font-size: 10.5pt; }
-  .secao { font-family: Arial; font-size: 7.5pt; color: #c9a84c; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4pt; }
-  .rodape { font-family: Arial; font-size: 7.5pt; color: #aaa; border-top: 1px solid #ddd; margin-top: 32pt; padding-top: 5pt; }
-  .refs-section { margin-top: 24pt; border-top: 1px solid #ddd; padding-top: 14pt; }
-  sup { font-size: 7pt; color: #c9a84c; }
-  strong { color: #3d1a6e; }
-</style>
-</head><body>
-<div class="secao">${p.secao}</div>
-<h1>${p.titulo}</h1>
-${textoHtml}
-${refsHtml}
-<div class="rodape">Dra. Camila Lino — CRM 274280 SP · Excepcionalidades Femininas</div>
-</body></html>`;
+Este capitulo faz parte de uma jornada. Conecte ao que veio antes. A frase celebre deve ser de autor real relacionado ao tema. Extensao: 1.200 a 1.500 palavras.';
 }
 
 // INIT
-initApiKey();
+initKey();
 buildSidebar();
 </script>
 </body>
